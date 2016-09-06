@@ -114,6 +114,10 @@ type Voice struct {
 }
 
 type Venue struct {
+	Location     Location `json:"location"`
+	Title        string   `json:"title"`
+	Address      string   `json:"address"`
+	FourSquareID string   `json:"foursquare_id"`
 }
 
 type Video struct {
