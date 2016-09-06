@@ -76,6 +76,11 @@ type Audio struct {
 }
 
 type Document struct {
+	FileID    string    `json:"file_id"`
+	Thumbnail PhotoSize `json:"thumb"`
+	Filename  string    `json:"file_name"`
+	MimeType  string    `json:"mime_type"`
+	FileSize  int       `json:"file_size"`
 }
 
 type PhotoSize struct {
