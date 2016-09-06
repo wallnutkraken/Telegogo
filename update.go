@@ -73,6 +73,10 @@ type Document struct {
 }
 
 type PhotoSize struct {
+	FileID   string `json:"file_id"`
+	Width    int    `json:"width"`
+	Height   int    `json:"height"`
+	FileSize int    `json:"file_size"`
 }
 
 type Sticker struct {
