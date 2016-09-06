@@ -91,6 +91,12 @@ type PhotoSize struct {
 }
 
 type Sticker struct {
+	FileID    string    `json:"file_id"`
+	Width     int       `json:"width"`
+	Height    int       `json:"height"`
+	Thumbnail PhotoSize `json:"thumb"`
+	Emoji     string    `json:"emoji"`
+	FileSize  int       `json:"file_size"`
 }
 
 type Contact struct {
