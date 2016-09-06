@@ -109,6 +109,13 @@ type Venue struct {
 }
 
 type Video struct {
+	FileID    string    `json:"file_id"`
+	Width     int       `json:"width"`
+	Height    int       `json:"height"`
+	Duration  int       `json:"duration"`
+	Thumbnail PhotoSize `json:"thumb"`
+	MimeType  string    `json:"mime_type"`
+	FileSize  int       `json:"file_size"`
 }
 
 type Location struct {
