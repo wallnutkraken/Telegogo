@@ -11,3 +11,11 @@ type User struct {
 	// Username Optional. User‘s or bot’s username
 	Username string `json:"username"`
 }
+
+// UserProfilePhotos represent a user's profile pictures.
+type UserProfilePhotos struct {
+	// Count Total number of profile pictures the target user has
+	Count int `json:"total_count"`
+	// Photos Requested profile pictures (in up to 4 sizes each)
+	Photos []PhotoSize `json:"photos"`
+}
