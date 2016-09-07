@@ -99,7 +99,19 @@ type InlineQuery struct {
 	Offset string `json:"offset"`
 }
 
+// ChosenInlineResult represents a result of an inline query that was chosen by the user and sent to their chat partner.
 type ChosenInlineResult struct {
+	// ResultID The unique identifier for the result that was chosen
+	ResultID string `json:"result_id"`
+	// From The user that chose the result
+	From User `json:"from"`
+	// Location Optional. Sender location, only for bots that require user location
+	Location Location `json:"Optional. Sender location, only for bots that require user location"`
+	// InlineMessageID Optional. Identifier of the sent inline message.
+	// Available only if there is an inline keyboard attached to the message.
+	InlineMessageID string `json:"inline_message_id"`
+	// Query The query that was used to obtain the result
+	Query string `json:"query"`
 }
 
 type CallbackQuery struct {
