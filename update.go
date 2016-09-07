@@ -114,10 +114,30 @@ type ChosenInlineResult struct {
 	Query string `json:"query"`
 }
 
+// CallbackQuery represents an incoming callback query from a callback button in an inline keyboard.
 type CallbackQuery struct {
+	// ID Unique identifier for this query
+	ID string `json:"id"`
+	// From Sender
+	From User `json:"from"`
+	// Message Optional. Message with the callback button that originated the query.
+	Message Message `json:"message"`
+	// InlineMessageID Optional. Identifier of the message sent via the bot in inline mode, that originated the query
+	InlineMessageID string `json:"inline_message_id"`
+	// Data associated with the callback button. Be aware that a bad client can send arbitrary data in this field
+	Data string `json:"data"`
 }
 
+// User represents a Telegram user or bot.
 type User struct {
+	// ID Unique identifier for this user or bot
+	ID int `json:"id"`
+	// FirstName User‘s or bot’s first name
+	FirstName string `json:"first_name"`
+	// LastName Optional. User‘s or bot’s last name
+	LastName string `json:"last_name"`
+	// Username Optional. User‘s or bot’s username
+	Username string `json:"username"`
 }
 
 type Chat struct {
