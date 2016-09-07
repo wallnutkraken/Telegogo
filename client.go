@@ -52,4 +52,5 @@ func NewClient(token string) (Client, error) {
 // Client represents a bot in Telegram.
 type Client interface {
 	getToken() string
+	DownloadFile(File, string) error
 }
