@@ -3,7 +3,9 @@ package Requests
 import "net/http"
 
 const (
-	baseURL = "https://api.telegram.org/bot"
+	baseURL = "https://api.telegram.org/"
+	bot     = "bot"
+	file    = "file"
 )
 
 // Arg represents a GET argument
@@ -12,14 +14,14 @@ type Arg struct {
 	Value string
 }
 
-// CreateGet returns http GET request with the provided token and method name
-func CreateGet(token string, methodName string) (*http.Request, error) {
-	return http.NewRequest("GET", baseURL+token+"/"+methodName, nil)
+// CreateBotGet returns http GET request with the provided token and method name
+func CreateBotGet(token string, methodName string) (*http.Request, error) {
+	return http.NewRequest("GET", baseURL+bot+token+"/"+methodName, nil)
 }
 
-// CreateGetWithArgs returns http GET request with the provided token, method name and given arguments
-func CreateGetWithArgs(token string, methodname string, args ...Arg) (*http.Request, error) {
-	request, err := http.NewRequest("GET", baseURL+token+"/"+methodname, nil)
+// CreateBotGetWithArgs returns http GET request with the provided token, method name and given arguments
+func CreateBotGetWithArgs(token string, methodname string, args ...Arg) (*http.Request, error) {
+	request, err := http.NewRequest("GET", baseURL+bot+token+"/"+methodname, nil)
 	if err != nil {
 		return request, err
 	}
@@ -30,4 +32,9 @@ func CreateGetWithArgs(token string, methodname string, args ...Arg) (*http.Requ
 	}
 
 	return request, nil
+}
+
+// CreateFileGet returns hyype GET request with the provided token and method name for files
+func CreateFileGet(token string, filepath string) (*http.Request, error) {
+	return http.NewRequest("GET", baseURL+file+token+"/"+filepath, nil)
 }

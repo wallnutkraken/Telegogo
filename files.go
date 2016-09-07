@@ -102,3 +102,13 @@ type Video struct {
 	// FileSize Optional. File size
 	FileSize int `json:"file_size"`
 }
+
+// File represents a file ready to be downloaded.
+type File struct {
+	//ID Unique identifier for this file
+	ID int `json:"file_id"`
+	// FileSize Optional. File size, if known
+	FileSize int `json:"file_size"`
+	// FilePath Optional. File path.
+	FilePath string `json:"file_path"`
+}
