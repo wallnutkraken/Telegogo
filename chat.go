@@ -15,3 +15,11 @@ type Chat struct {
 	// LastName Optional. Last name of the other party in a private chat
 	LastName string `json:"last_name"`
 }
+
+// ChatMember contains information about one member of the chat.
+type ChatMember struct {
+	// User Information about the user
+	User User `json:"user"`
+	// Status is the member's status in the chat. Can be “creator”, “administrator”, “member”, “left” or “kicked”
+	Status string `json:"status"`
+}
