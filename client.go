@@ -57,7 +57,7 @@ func (c *client) WhoAmI() (User, error) {
 	}
 	defer response.Body.Close()
 	decoder := json.NewDecoder(response.Body)
-	err = decoder.Decode(user)
+	err = decoder.Decode(&user)
 
 	return user, err
 }
@@ -74,4 +74,5 @@ func NewClient(token string) (Client, error) {
 type Client interface {
 	getToken() string
 	DownloadFile(File, string) error
+	WhoAmI() (User, error)
 }
