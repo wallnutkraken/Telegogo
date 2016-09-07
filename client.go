@@ -1,6 +1,7 @@
 package TeleGogo
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -39,6 +40,26 @@ func (c *client) DownloadFile(file File, path string) error {
 
 	_, err = io.Copy(physicalFile, resp.Body)
 	return err
+}
+
+// WhoAmI A simple method for testing your bot's auth token. Requires no parameters.
+// Returns basic information about the bot in form of a User object.
+func (c *client) WhoAmI() (User, error) {
+	request, err := Requests.CreateBotGet(c.token, "getMe")
+	user := User{}
+	if err != nil {
+		return user, err
+	}
+
+	response, err := c.httpClient.Do(request)
+	if err != nil {
+		return user, err
+	}
+	defer response.Body.Close()
+	decoder := json.NewDecoder(response.Body)
+	err = decoder.Decode(user)
+
+	return user, err
 }
 
 // NewClient Creates a new Client

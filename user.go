@@ -12,6 +12,10 @@ type User struct {
 	Username string `json:"username"`
 }
 
+func userFromJSON() (User, error) {
+	return User{}, nil
+}
+
 // UserProfilePhotos represent a user's profile pictures.
 type UserProfilePhotos struct {
 	// Count Total number of profile pictures the target user has
