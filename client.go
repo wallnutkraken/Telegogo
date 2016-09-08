@@ -2,6 +2,7 @@ package TeleGogo
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -39,6 +40,29 @@ func (c *client) GetUpdates(options GetUpdatesOptions) ([]Update, error) {
 	}
 
 	return responseObj.Result, err
+}
+
+// SetWebhook NOT TESTED. Use this method to specify a url and receive incoming updates via an outgoing
+// webhook. Whenever there is an update for the bot, we will send an HTTPS POST request to the specified url,
+// containing a JSON-serialized Update. In case of an unsuccessful request, we will give up after a
+// reasonable amount of attempts.
+func (c *client) SetWebhook(args SetWebhookArgs) error {
+	postBody, buffer, err := args.toPOSTBody()
+	if err != nil {
+		return err
+	}
+	req, err := Requests.CreateBotPOST(c.token, "setWebook", buffer)
+	req.Header.Set("Content-Type", postBody.FormDataContentType())
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("Bad status: %s", resp.Status)
+	}
+	return nil
 }
 
 // DownloadFile downloads the specified file
@@ -148,4 +172,5 @@ type Client interface {
 	GetUpdates(GetUpdatesOptions) ([]Update, error)
 	SendMessage(SendMessageArgs) (Message, error)
 	ForwardMessage(ForwardMessageArgs) (Message, error)
+	SetWebhook(SetWebhookArgs) error
 }

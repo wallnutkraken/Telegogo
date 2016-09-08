@@ -2,6 +2,7 @@ package Requests
 
 import (
 	"bytes"
+	"io"
 	"net/http"
 )
 
@@ -50,4 +51,9 @@ func CreateBotPostJSON(token string, methodname string, encodedJSON []byte) (*ht
 	}
 	request.Header.Set("Content-Type", "application/json")
 	return request, err
+}
+
+// CreateBotPOST Creates a POST to the Telegram API with no parameters
+func CreateBotPOST(token string, methodname string, body io.Reader) (*http.Request, error) {
+	return http.NewRequest("POST", baseURL+bot+token+"/"+methodname, body)
 }
