@@ -64,7 +64,7 @@ func (c *client) SetWebhook(args SetWebhookArgs) error {
 	if resp.StatusCode != http.StatusOK {
 		var responseBuffer = make([]byte, 1024)
 		len, _ := resp.Body.Read(responseBuffer)
-		return m, fmt.Errorf("Bad response: %s; (%s)", resp.Status, string(responseBuffer[:len]))
+		return fmt.Errorf("Bad response: %s; (%s)", resp.Status, string(responseBuffer[:len]))
 	}
 	resp.Body.Close()
 	return nil
@@ -207,7 +207,6 @@ func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 
 	post, err := Requests.CreateBotPOST(c.token, "sendPhoto", buffer)
 	post.Header.Add("Content-Type", writer.FormDataContentType())
-	post.Header.Add("chat_id", args.ChatID)
 
 	/* Send request */
 	response, err := c.httpClient.Do(post)
@@ -232,7 +231,63 @@ func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 }
 
 func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
-	panic("Not yet")
+	writer, buffer, file, err := args.toMultiPart()
+	defer file.Close()
+	m := Message{}
+	if err != nil {
+		return m, err
+	}
+	/* Add ChatID */
+	writer.WriteField("chat_id", args.ChatID)
+
+	/* Optional args */
+	if args.Duration != 0 {
+		writer.WriteField("duration", strconv.Itoa(args.Duration))
+	}
+	if args.Performer != "" {
+		writer.WriteField("performer", args.Performer)
+	}
+	if args.Title != "" {
+		writer.WriteField("title", args.Title)
+	}
+	if args.DisableNotification == true {
+		writer.WriteField("disable_notification", "true")
+	}
+	if args.ReplyMarkup != "" {
+		writer.WriteField("reply_markup", args.ReplyMarkup)
+	}
+	if args.ReplyToMessageID != 0 {
+		writer.WriteField("reply_to_message_id", strconv.Itoa(args.ReplyToMessageID))
+	}
+
+	/* Close the writer; we're done with the body of the request. */
+	if err = writer.Close(); err != nil {
+		return m, err
+	}
+
+	post, err := Requests.CreateBotPOST(c.token, "sendAudio", buffer)
+	post.Header.Add("Content-Type", writer.FormDataContentType())
+
+	/* Send request */
+	response, err := c.httpClient.Do(post)
+	if err != nil {
+		return m, err
+	}
+
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		var responseBuffer = make([]byte, 1024)
+		len, _ := response.Body.Read(responseBuffer)
+		return m, fmt.Errorf("Bad response: %s; (%s)", response.Status, string(responseBuffer[:len]))
+	}
+	/* Read reply */
+	msgReply := messageReply{}
+	decoder := json.NewDecoder(response.Body)
+	if err = decoder.Decode(&msgReply); err != nil {
+		return m, err
+	}
+
+	return msgReply.Result, err
 }
 
 // ResendPhoto Use this method to send photos already on the Telegram servers.

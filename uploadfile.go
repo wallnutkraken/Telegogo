@@ -77,3 +77,33 @@ func (a *SendPhotoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, *os.Fil
 	}
 	return writer, buffer, file, nil
 }
+
+// SendAudioArgs represents the optional and required arguments for the SendAudio method
+type SendAudioArgs struct {
+	// ChatID Required. Unique identifier for the target chat or username of the target channel
+	// (in the format @channelusername)
+	ChatID string
+	// AudioID Required. Path to audio file on device.
+	AudioPath string
+	// Duration Optional. Duration of the audio in seconds
+	Duration int
+	// Performer Optional.
+	Performer string
+	// Title Optional. Track name
+	Title string
+	// DisableNotification Optional. Sends the message silently.
+	DisableNotification bool
+	// ReplyToMessageID Optional. If the message is a reply, ID of the original message
+	ReplyToMessageID int
+	// ReplyMarkup Optional. Additional interface options. A JSON-serialized object for an inline keyboard,
+	// custom reply keyboard, instructions to hide reply keyboard or to force a reply from the user.
+	ReplyMarkup string
+}
+
+func (a *SendAudioArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, *os.File, error) {
+	writer, buffer, file, err := createInputFileBody(a.AudioPath, "audio")
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return writer, buffer, file, nil
+}
