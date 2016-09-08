@@ -156,6 +156,34 @@ func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
 	return sentMsgResponse.Result, err
 }
 
+// ResendPhoto Use this method to send photos already on the Telegram servers.
+// On success, the sent Message is returned.
+func (c *client) ResendPhoto(args ResendPhotoArgs) (Message, error) {
+	jsonBytes, err := args.toJSON()
+	m := Message{}
+	if err != nil {
+		return m, err
+	}
+	post, err := Requests.CreateBotPostJSON(c.token, "sendPhoto", jsonBytes)
+	if err != nil {
+		return m, err
+	}
+	tgResponse, err := c.httpClient.Do(post)
+	if err != nil {
+		return m, err
+	}
+	tgResponse.Body.Close()
+	if tgResponse.StatusCode != http.StatusOK {
+		return m, fmt.Errorf("Bad response: %s", tgResponse.Status)
+	}
+	decoder := json.NewDecoder(tgResponse.Body)
+	msgResponse := messageReply{}
+	if err = decoder.Decode(&msgResponse); err != nil {
+		return m, err
+	}
+	return msgResponse.Result, nil
+}
+
 // NewClient Creates a new Client
 func NewClient(token string) (Client, error) {
 	c := new(client)
@@ -173,4 +201,5 @@ type Client interface {
 	SendMessage(SendMessageArgs) (Message, error)
 	ForwardMessage(ForwardMessageArgs) (Message, error)
 	SetWebhook(SetWebhookArgs) error
+	ResendPhoto(ResendPhotoArgs) (Message, error)
 }
