@@ -18,7 +18,27 @@ func (c *client) getToken() string {
 	return c.token
 }
 
-func (c *client) RecieveUpdates() {
+// GetUpdates receives incoming updates using long polling.
+func (c *client) GetUpdates(options GetUpdatesOptions) ([]Update, error) {
+	get, err := Requests.CreateBotGetWithArgs(c.token, "getUpdates", options.toArgs()...)
+	if err != nil {
+		return nil, err
+	}
+	httpResponse, err := c.httpClient.Do(get)
+	if err != nil {
+		return nil, err
+	}
+
+	defer httpResponse.Body.Close()
+	responseObj := updateResponse{}
+	decoder := json.NewDecoder(httpResponse.Body)
+
+	err = decoder.Decode(&responseObj)
+	if err != nil {
+		return nil, err
+	}
+
+	return responseObj.Result, err
 }
 
 // DownloadFile downloads the specified file
@@ -78,4 +98,5 @@ type Client interface {
 	getToken() string
 	DownloadFile(File, string) error
 	WhoAmI() (User, error)
+	GetUpdates(GetUpdatesOptions) ([]Update, error)
 }

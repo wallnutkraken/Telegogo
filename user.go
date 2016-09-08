@@ -23,3 +23,8 @@ type UserProfilePhotos struct {
 	// Photos Requested profile pictures (in up to 4 sizes each)
 	Photos []PhotoSize `json:"photos"`
 }
+
+type userResponse struct {
+	OK     bool `json:"ok"`
+	Result User `json:"result"`
+}
