@@ -2,3 +2,4 @@
 *.exe
 #Tests
 *_test.go
+testfiles/

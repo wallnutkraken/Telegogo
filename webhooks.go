@@ -3,6 +3,7 @@ package TeleGogo
 import (
 	"bytes"
 	"mime/multipart"
+	"os"
 )
 
 // SetWebhookArgs represents the optional and required arguments for the SetWebhook method
@@ -14,15 +15,16 @@ type SetWebhookArgs struct {
 	CertificatePath string
 }
 
-func (a *SetWebhookArgs) toPOSTBody() (*multipart.Writer, *bytes.Buffer, error) {
-	writer, buffer, err := createInputFileBody(a.CertificatePath, "certificate")
+func (a *SetWebhookArgs) toMultiform() (*multipart.Writer, *bytes.Buffer, *os.File, error) {
+	writer, buffer, file, err := createInputFileBody(a.CertificatePath, "certificate")
 
-	url, err := writer.CreateFormField("url")
+	err = writer.WriteField("url", a.URL)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
-	url.Write([]byte(a.URL))
-	writer.Close()
+	if err = writer.Close(); err != nil {
+		return nil, nil, nil, err
+	}
 
-	return writer, buffer, nil
+	return writer, buffer, file, nil
 }

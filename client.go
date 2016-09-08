@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/wallnutkraken/TeleGogo/Requests"
 )
@@ -47,7 +48,8 @@ func (c *client) GetUpdates(options GetUpdatesOptions) ([]Update, error) {
 // containing a JSON-serialized Update. In case of an unsuccessful request, we will give up after a
 // reasonable amount of attempts.
 func (c *client) SetWebhook(args SetWebhookArgs) error {
-	postBody, buffer, err := args.toPOSTBody()
+	postBody, buffer, file, err := args.toMultiform()
+	defer file.Close()
 	if err != nil {
 		return err
 	}
@@ -156,10 +158,66 @@ func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
 	return sentMsgResponse.Result, err
 }
 
+func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
+	writer, buffer, file, err := args.toMultiPart()
+	defer file.Close()
+	m := Message{}
+	if err != nil {
+		return m, err
+	}
+	/* Add ChatID */
+	writer.WriteField("chat_id", args.ChatID)
+
+	/* Optional args */
+	if args.Caption != "" {
+		writer.WriteField("caption", args.Caption)
+	}
+	if args.DisableNotification == true {
+		writer.WriteField("disable_notification", "true")
+	}
+	if args.ReplyMarkup != "" {
+		writer.WriteField("reply_markup", args.ReplyMarkup)
+	}
+	if args.ReplyToMessageID != 0 {
+		writer.WriteField("reply_to_message_id", strconv.Itoa(args.ReplyToMessageID))
+	}
+
+	/* Close the writer; we're done with the body of the request. */
+	if err = writer.Close(); err != nil {
+		return m, err
+	}
+
+	post, err := Requests.CreateBotPOST(c.token, "sendPhoto", buffer)
+	post.Header.Add("Content-Type", writer.FormDataContentType())
+	post.Header.Add("chat_id", args.ChatID)
+
+	/* Send request */
+	response, err := c.httpClient.Do(post)
+	if err != nil {
+		return m, err
+	}
+
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		var responseBuffer = make([]byte, 1024)
+		len, _ := response.Body.Read(responseBuffer)
+		return m, fmt.Errorf("Bad response: %s; (%s)", response.Status, string(responseBuffer[:len]))
+	}
+	/* Read reply */
+	msgReply := messageReply{}
+	decoder := json.NewDecoder(response.Body)
+	if err = decoder.Decode(&msgReply); err != nil {
+		return m, err
+	}
+
+	return msgReply.Result, err
+}
+
 // ResendPhoto Use this method to send photos already on the Telegram servers.
 // On success, the sent Message is returned.
 func (c *client) ResendPhoto(args ResendPhotoArgs) (Message, error) {
 	jsonBytes, err := args.toJSON()
+
 	m := Message{}
 	if err != nil {
 		return m, err
@@ -172,9 +230,11 @@ func (c *client) ResendPhoto(args ResendPhotoArgs) (Message, error) {
 	if err != nil {
 		return m, err
 	}
-	tgResponse.Body.Close()
+	defer tgResponse.Body.Close()
 	if tgResponse.StatusCode != http.StatusOK {
-		return m, fmt.Errorf("Bad response: %s", tgResponse.Status)
+		var buffer = make([]byte, 1024)
+		len, _ := tgResponse.Body.Read(buffer)
+		return m, fmt.Errorf("Bad response: %s; (%s)", tgResponse.Status, string(buffer[:len]))
 	}
 	decoder := json.NewDecoder(tgResponse.Body)
 	msgResponse := messageReply{}
@@ -202,4 +262,5 @@ type Client interface {
 	ForwardMessage(ForwardMessageArgs) (Message, error)
 	SetWebhook(SetWebhookArgs) error
 	ResendPhoto(ResendPhotoArgs) (Message, error)
+	SendPhoto(SendPhotoArgs) (Message, error)
 }
