@@ -128,3 +128,21 @@ type SendMessageArgs struct {
 func (a *SendMessageArgs) toJSON() ([]byte, error) {
 	return json.Marshal(*a)
 }
+
+// ForwardMessageArgs represents the optional and required arguments for the ForwardMessage message
+type ForwardMessageArgs struct {
+	// ChatID Required. Unique identifier for the target chat or username of the target channel
+	// (in the format @channelusername)
+	ChatID string `json:"chat_id"`
+	// FromChatID Required. Unique identifier for the chat where the original message was sent
+	// (or channel username in the format @channelusername)
+	FromChatID string `json:"from_chat_id"`
+	// DisableNotification Optional. If true, sends the message silently.
+	DisableNotification bool `json:"disable_notification,omitempty"`
+	// MessageID Required. Unique message identifier
+	MessageID int `json:"message_id"`
+}
+
+func (f *ForwardMessageArgs) toJSON() ([]byte, error) {
+	return json.Marshal(*f)
+}
