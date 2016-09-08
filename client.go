@@ -85,6 +85,30 @@ func (c *client) WhoAmI() (User, error) {
 	return tgResp.Result, err
 }
 
+// SendMessage sends a message with the specified arguments. On success returns the sent Message.
+func (c *client) SendMessage(args SendMessageArgs) (Message, error) {
+	jsonBytes, err := args.toJSON()
+	if err != nil {
+		return Message{}, err
+	}
+	get, err := Requests.CreateBotPostJSON(c.token, "sendMessage", jsonBytes)
+	if err != nil {
+		return Message{}, err
+	}
+	tgResponse, err := c.httpClient.Do(get)
+	if err != nil {
+		return Message{}, err
+	}
+	defer tgResponse.Body.Close()
+
+	decoder := json.NewDecoder(tgResponse.Body)
+	sentMsgResponse := messageReply{}
+
+	err = decoder.Decode(&sentMsgResponse)
+
+	return sentMsgResponse.Result, err
+}
+
 // NewClient Creates a new Client
 func NewClient(token string) (Client, error) {
 	c := new(client)
@@ -99,4 +123,5 @@ type Client interface {
 	DownloadFile(File, string) error
 	WhoAmI() (User, error)
 	GetUpdates(GetUpdatesOptions) ([]Update, error)
+	SendMessage(SendMessageArgs) (Message, error)
 }

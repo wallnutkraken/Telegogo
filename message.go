@@ -1,5 +1,7 @@
 package TeleGogo
 
+import "encoding/json"
+
 // Message represents a message.
 type Message struct {
 	// ID Unique message identifier
@@ -94,4 +96,35 @@ type ForceReply struct {
 	// Targets: 1) users that are @mentioned in the text of the Message object;
 	// 2) if the bot's message is a reply (has reply_to_message_id), sender of the original message.
 	Selective bool `json:"selective"`
+}
+
+type messageReply struct {
+	OK     bool    `json:"ok"`
+	Result Message `json:"result"`
+}
+
+// SendMessageArgs represents the optional and required arguments for the SendMessage method.
+type SendMessageArgs struct {
+	// ChatID Required. Unique identifier for the target chat or username of the target channel
+	// (in the format @channelusername)
+	ChatID string `json:"chat_id"`
+	// Text Required. Text of the message to be sent
+	Text string `json:"text"`
+	// ParseMode Optional. Send Markdown or HTML, if you want Telegram apps to show bold, italic,
+	// fixed-width text or inline URLs in your bot's message.
+	ParseMode string `json:"parse_mode,omitempty"`
+	// DisableWebPagePreview Optional. Disables link previews for links in this message
+	DisableWebPagePreview bool `json:"disable_web_page_preview,omitempty"`
+	// DisableNotification Optional. Sends the message silently. iOS users will not receive a notification,
+	// Android users will receive a notification with no sound.
+	DisableNotification bool `json:"disable_notification,omitempty"`
+	// ReplyToMessageID Optional. If the message is a reply, ID of the original message
+	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
+	// ReplyMarkup Optional. Additional interface options. A JSON-serialized object for an inline keyboard,
+	// custom reply keyboard, instructions to hide reply keyboard or to force a reply from the user.
+	ReplyMarkup string `json:"reply_markup,omitempty"`
+}
+
+func (a *SendMessageArgs) toJSON() ([]byte, error) {
+	return json.Marshal(*a)
 }

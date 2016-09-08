@@ -1,6 +1,9 @@
 package Requests
 
-import "net/http"
+import (
+	"bytes"
+	"net/http"
+)
 
 const (
 	baseURL = "https://api.telegram.org/"
@@ -37,4 +40,14 @@ func CreateBotGetWithArgs(token string, methodname string, args ...Arg) (*http.R
 // CreateFileGet returns hyype GET request with the provided token and method name for files
 func CreateFileGet(token string, filepath string) (*http.Request, error) {
 	return http.NewRequest("GET", baseURL+file+token+"/"+filepath, nil)
+}
+
+// CreateBotPostJSON Creates a POST to the Telegram API with the given parameters
+func CreateBotPostJSON(token string, methodname string, encodedJSON []byte) (*http.Request, error) {
+	request, err := http.NewRequest("POST", baseURL+bot+token+"/"+methodname, bytes.NewBuffer(encodedJSON))
+	if err != nil {
+		return nil, err
+	}
+	request.Header.Set("Content-Type", "application/json")
+	return request, err
 }
