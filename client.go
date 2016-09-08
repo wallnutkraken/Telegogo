@@ -62,8 +62,11 @@ func (c *client) SetWebhook(args SetWebhookArgs) error {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Bad status: %s", resp.Status)
+		var responseBuffer = make([]byte, 1024)
+		len, _ := resp.Body.Read(responseBuffer)
+		return m, fmt.Errorf("Bad response: %s; (%s)", resp.Status, string(responseBuffer[:len]))
 	}
+	resp.Body.Close()
 	return nil
 }
 
@@ -103,6 +106,11 @@ func (c *client) WhoAmI() (User, error) {
 	}
 
 	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		var responseBuffer = make([]byte, 1024)
+		len, _ := response.Body.Read(responseBuffer)
+		return User{}, fmt.Errorf("Bad response: %s; (%s)", response.Status, string(responseBuffer[:len]))
+	}
 	tgResp := userResponse{}
 	decoder := json.NewDecoder(response.Body)
 
@@ -126,6 +134,11 @@ func (c *client) SendMessage(args SendMessageArgs) (Message, error) {
 		return Message{}, err
 	}
 	defer tgResponse.Body.Close()
+	if tgResponse.StatusCode != http.StatusOK {
+		var responseBuffer = make([]byte, 1024)
+		len, _ := tgResponse.Body.Read(responseBuffer)
+		return Message{}, fmt.Errorf("Bad response: %s; (%s)", tgResponse.Status, string(responseBuffer[:len]))
+	}
 
 	decoder := json.NewDecoder(tgResponse.Body)
 	sentMsgResponse := messageReply{}
@@ -149,6 +162,11 @@ func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
 		return Message{}, err
 	}
 	defer tgResponse.Body.Close()
+	if tgResponse.StatusCode != http.StatusOK {
+		var responseBuffer = make([]byte, 1024)
+		len, _ := tgResponse.Body.Read(responseBuffer)
+		return Message{}, fmt.Errorf("Bad response: %s; (%s)", tgResponse.Status, string(responseBuffer[:len]))
+	}
 
 	decoder := json.NewDecoder(tgResponse.Body)
 	sentMsgResponse := messageReply{}
@@ -213,6 +231,10 @@ func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 	return msgReply.Result, err
 }
 
+func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
+	panic("Not yet")
+}
+
 // ResendPhoto Use this method to send photos already on the Telegram servers.
 // On success, the sent Message is returned.
 func (c *client) ResendPhoto(args ResendPhotoArgs) (Message, error) {
@@ -263,4 +285,5 @@ type Client interface {
 	SetWebhook(SetWebhookArgs) error
 	ResendPhoto(ResendPhotoArgs) (Message, error)
 	SendPhoto(SendPhotoArgs) (Message, error)
+	SendAudio(SendAudioArgs) (Message, error)
 }
