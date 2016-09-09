@@ -167,13 +167,26 @@ func (a SendAudioArgs) toJSON() ([]byte, error) {
 
 // SendDocumentArgs represents the optional and required arguments for the SendDocument method
 type SendDocumentArgs struct {
-	ChatID              string `json:"chat_id"`
-	DocumentPath        string `json:"-"`
-	DocumentFileID      string `json:"document"`
-	Caption             string `json:"caption,omitempty"`
-	DisableNotification bool   `json:"disable_notification,omitempty"`
-	ReplyToMessageID    int    `json:"reply_to_message_id,omitempty"`
-	ReplyMarkup         string `json:"reply_markup"`
+	// ChatID Required. Unique identifier for the target chat or username of the target channel
+	// (in the format @channelusername)
+	ChatID string `json:"chat_id"`
+	// DocumentPath Required. Use if you want to upload a new file to Telegram. If you are looking to send
+	// a document that already exists on Telegram's servers and you know it's file ID, use DocumentFileID
+	// instead. Only one of these fields may be filled.
+	DocumentPath string `json:"-"`
+	// DocumentFileID Required. Use if you want to send a document that already exists on Telegram's servers
+	// and you know it's file ID. If you want to upload a new file, use DocumentPath instead. Only one of
+	// these fields may be filled.
+	DocumentFileID string `json:"document"`
+	// Caption Optional. Document caption. 0-200 characters
+	Caption string `json:"caption,omitempty"`
+	// DisableNotification Optional. Sends the message silently.
+	DisableNotification bool `json:"disable_notification,omitempty"`
+	// ReplyToMessageID Optional. If the message is a reply, ID of the original message
+	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
+	// ReplyMarkup Optional. Additional interface options. A JSON-serialized object for an inline keyboard,
+	// custom reply keyboard, instructions to hide reply keyboard or to force a reply from the user.
+	ReplyMarkup string `json:"reply_markup"`
 }
 
 func (a SendDocumentArgs) methodName() string {

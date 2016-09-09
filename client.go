@@ -222,6 +222,8 @@ func (c *client) sendExistingDocument(args SendDocumentArgs) (Message, error) {
 	return responseToMessage(response)
 }
 
+// SendDocument Use this method to send general files. On success, the sent Message is returned.
+// Bots can currently send files of any type of up to 50 MB in size, this limit may be changed in the future.
 func (c *client) SendDocument(args SendDocumentArgs) (Message, error) {
 	/* Decide if the document is a resend or a new file, based on args */
 	if args.DocumentPath != "" {
