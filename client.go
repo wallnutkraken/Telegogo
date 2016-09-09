@@ -180,6 +180,7 @@ func (c *client) sendExistingPhoto(args SendPhotoArgs) (Message, error) {
 	return msg.Result, err
 }
 
+// SendPhoto Use this method to send photos. On success, the sent Message is returned.
 func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 	/* Decide whether this is a newly uploaded file or an old one. */
 	if args.FileID == "" {
@@ -188,7 +189,7 @@ func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 	return c.sendExistingPhoto(args)
 }
 
-func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
+func (c *client) sendNewAudio(args SendAudioArgs) (Message, error) {
 	response, err := c.sendFile(args)
 	if err != nil {
 		return Message{}, err
@@ -208,6 +209,26 @@ func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
 	return msgReply.Result, err
 }
 
+func (c *client) sendExistingAudio(args SendAudioArgs) (Message, error) {
+	response, err := c.sendJSON(args)
+	if err != nil {
+		return Message{}, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
+	}
+	/* Parse reply */
+	return responseToMessage(response)
+}
+
+func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
+	/* Decide if it's a new or existing file, based on user intent */
+	if args.AudioFileID != "" {
+		return c.sendNewAudio(args)
+	}
+	return c.sendExistingAudio(args)
+}
+
 func (c *client) resendPhoto(args SendPhotoArgs) (Message, error) {
 	response, err := c.sendJSON(args)
 	if err != nil {
@@ -224,6 +245,14 @@ func (c *client) resendPhoto(args SendPhotoArgs) (Message, error) {
 	response.Body.Close()
 
 	return msgResponse.Result, nil
+}
+
+func responseToMessage(response *http.Response) (Message, error) {
+	msg := messageReply{}
+	decoder := json.NewDecoder(response.Body)
+	err := decoder.Decode(msg)
+	defer response.Body.Close()
+	return msg.Result, err
 }
 
 // NewClient Creates a new Client
