@@ -1,10 +1,6 @@
 package TeleGogo
 
-import (
-	"strconv"
-
-	"github.com/wallnutkraken/TeleGogo/Requests"
-)
+import "encoding/json"
 
 // Update represents a state update in Telegram that has relevance to a bot client.
 type Update struct {
@@ -31,24 +27,17 @@ type updateResponse struct {
 type GetUpdatesOptions struct {
 	// Offset Optional. Identifier of the first update to be returned.
 	// Must be greater by one than the highest among the identifiers of previously received updates.
-	Offset int
+	Offset int `json:"offset"`
 	// Limit Optional. Limits the number of updates to be retrieved. Values between 1—100 are accepted.
-	Limit int
+	Limit int `json:"limit,omitempty"`
 	// Timeout Optional. Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling.
-	Timeout int
+	Timeout int `json:"timeout,omitempty"`
 }
 
-func (u *GetUpdatesOptions) toArgs() []Requests.Arg {
-	var args = make([]Requests.Arg, 0)
-	if u.Offset != 0 {
-		args = append(args, Requests.Arg{Name: "offset", Value: strconv.Itoa(u.Offset)})
-	}
-	if u.Limit != 0 {
-		args = append(args, Requests.Arg{Name: "limit", Value: strconv.Itoa(u.Limit)})
-	}
-	if u.Timeout != 0 {
-		args = append(args, Requests.Arg{Name: "timeout", Value: strconv.Itoa(u.Timeout)})
-	}
+func (u GetUpdatesOptions) toJSON() ([]byte, error) {
+	return json.Marshal(u)
+}
 
-	return args
+func (u GetUpdatesOptions) methodName() string {
+	return "getUpdates"
 }

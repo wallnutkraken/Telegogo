@@ -20,25 +20,21 @@ func (c *client) getToken() string {
 
 // GetUpdates receives incoming updates using long polling.
 func (c *client) GetUpdates(options GetUpdatesOptions) ([]Update, error) {
-	get, err := Requests.CreateBotGetWithArgs(c.token, "getUpdates", options.toArgs()...)
-	if err != nil {
-		return nil, err
-	}
-	httpResponse, err := c.httpClient.Do(get)
+	response, err := c.sendJSON(options)
 	if err != nil {
 		return nil, err
 	}
 
-	responseObj := updateResponse{}
-	decoder := json.NewDecoder(httpResponse.Body)
+	if response.StatusCode != http.StatusOK {
+		return nil, responseToError(response)
+	}
 
-	err = decoder.Decode(&responseObj)
-	if err != nil {
+	upd := updateResponse{}
+	decoder := json.NewDecoder(response.Body)
+	if err = decoder.Decode(&upd); err != nil {
 		return nil, err
 	}
-	httpResponse.Body.Close()
-
-	return responseObj.Result, err
+	return upd.Result, nil
 }
 
 // SetWebhook NOT TESTED. Use this method to specify a url and receive incoming updates via an outgoing
