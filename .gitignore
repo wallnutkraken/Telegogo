@@ -1,5 +1,2 @@
 #Binary files
 *.exe
-#Tests
-*_test.go
-testfiles/
