@@ -165,6 +165,55 @@ func (a SendAudioArgs) toJSON() ([]byte, error) {
 	return json.Marshal(a)
 }
 
+// SendDocumentArgs represents the optional and required arguments for the SendDocument method
+type SendDocumentArgs struct {
+	ChatID              string `json:"chat_id"`
+	DocumentPath        string `json:"-"`
+	DocumentFileID      string `json:"document"`
+	Caption             string `json:"caption,omitempty"`
+	DisableNotification bool   `json:"disable_notification,omitempty"`
+	ReplyToMessageID    int    `json:"reply_to_message_id,omitempty"`
+	ReplyMarkup         string `json:"reply_markup"`
+}
+
+func (a SendDocumentArgs) methodName() string {
+	return "sendDocument"
+}
+
+func (a SendDocumentArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
+	writer, buffer, err := createInputFileBody(a.DocumentPath, "document")
+	if err != nil {
+		return nil, nil, err
+	}
+	/* Add ChatID */
+	writer.WriteField("chat_id", a.ChatID)
+
+	/* Optional args */
+	if a.Caption != "" {
+		writer.WriteField("caption", a.Caption)
+	}
+	if a.DisableNotification == true {
+		writer.WriteField("disable_notification", "true")
+	}
+	if a.ReplyToMessageID != 0 {
+		writer.WriteField("reply_to_message_id", strconv.Itoa(a.ReplyToMessageID))
+	}
+	if a.ReplyMarkup != "" {
+		writer.WriteField("reply_markup", a.ReplyMarkup)
+	}
+
+	/* Close the writer; we're done with the body of the request. */
+	if err = writer.Close(); err != nil {
+		return nil, nil, err
+	}
+
+	return writer, buffer, nil
+}
+
+func (a SendDocumentArgs) toJSON() ([]byte, error) {
+	return json.Marshal(a)
+}
+
 type fileUploader interface {
 	toMultiPart() (*multipart.Writer, *bytes.Buffer, error)
 	methodName() string

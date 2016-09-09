@@ -198,6 +198,38 @@ func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
 	return c.sendExistingAudio(args)
 }
 
+func (c *client) sendNewDocument(args SendDocumentArgs) (Message, error) {
+	response, err := c.sendFile(args)
+	if err != nil {
+		return Message{}, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
+	}
+
+	return responseToMessage(response)
+}
+
+func (c *client) sendExistingDocument(args SendDocumentArgs) (Message, error) {
+	response, err := c.sendJSON(args)
+	if err != nil {
+		return Message{}, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
+	}
+
+	return responseToMessage(response)
+}
+
+func (c *client) SendDocument(args SendDocumentArgs) (Message, error) {
+	/* Decide if the document is a resend or a new file, based on args */
+	if args.DocumentPath != "" {
+		return c.sendNewDocument(args)
+	}
+	return c.sendExistingDocument(args)
+}
+
 func (c *client) resendPhoto(args SendPhotoArgs) (Message, error) {
 	response, err := c.sendJSON(args)
 	if err != nil {
@@ -206,14 +238,7 @@ func (c *client) resendPhoto(args SendPhotoArgs) (Message, error) {
 	if response.StatusCode != http.StatusOK {
 		return Message{}, responseToError(response)
 	}
-	decoder := json.NewDecoder(response.Body)
-	msgResponse := messageReply{}
-	if err = decoder.Decode(&msgResponse); err != nil {
-		return Message{}, err
-	}
-	response.Body.Close()
-
-	return msgResponse.Result, nil
+	return responseToMessage(response)
 }
 
 func responseToMessage(response *http.Response) (Message, error) {
@@ -243,4 +268,5 @@ type Client interface {
 	SetWebhook(SetWebhookArgs) error
 	SendPhoto(SendPhotoArgs) (Message, error)
 	SendAudio(SendAudioArgs) (Message, error)
+	SendDocument(SendDocumentArgs) (Message, error)
 }
