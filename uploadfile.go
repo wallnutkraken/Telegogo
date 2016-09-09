@@ -31,36 +31,19 @@ func createInputFileBody(path string, formName string) (*multipart.Writer, *byte
 	return writer, &buffer, nil
 }
 
-// ResendPhotoArgs represents the optional and required arguments used when resending an already
-// uploaded photo.
-type ResendPhotoArgs struct {
-	// ChatID Required. Unique identifier for the target chat or username of the target channel
-	// (in the format @channelusername)
-	ChatID string `json:"chat_id"`
-	// PhotoID Required. Photo to send. Pass a file ID to resend a photo that is already on the Telegram servers
-	PhotoID string `json:"photo"`
-	// Caption Optional. Photo caption. 0-200 chars.
-	Caption string `json:"caption,omitempty"`
-	// DisableNotification Optional. Sends the message silently.
-	DisableNotification bool `json:"disable_notification,omitempty"`
-	// ReplyToMessageID Optional. If the message is a reply, ID of the original message
-	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
-	// ReplyMarkup Optional. Additional interface options. A JSON-serialized object for an inline keyboard,
-	// custom reply keyboard, instructions to hide reply keyboard or to force a reply from the user.
-	ReplyMarkup string `json:"reply_markup,omitempty"`
-}
-
-func (a ResendPhotoArgs) toJSON() ([]byte, error) {
-	return json.Marshal(a)
-}
-
 // SendPhotoArgs represents the optional and required arguments for the SendPhoto method
 type SendPhotoArgs struct {
 	// ChatID Required. Unique identifier for the target chat or username of the target channel
 	// (in the format @channelusername)
 	ChatID string `json:"chat_id"`
-	// PhotoID Required. Path to photo file on device.
-	PhotoPath string
+	// PhotoID Required. Path to photo file on device. In one request only this, or PhotoID should be set.
+	// Use this if you're uploading a new file. Use PhotoID if you want to send a photo that is already on
+	// Telegram's servers, and you know it's file ID.
+	PhotoPath string `json:"-"`
+	// FileID Required. Unique ID for a photo file on Telegram's servers. In one request only this,
+	// or PhotoPath should be set. Use this if you want to send a photo that is already on Telegram's
+	// servers and you know it's file ID. Otherwise, use PhotoPath.
+	FileID string `json:"photo"`
 	// Caption Optional. Photo caption. 0-200 chars.
 	Caption string `json:"caption,omitempty"`
 	// DisableNotification Optional. Sends the message silently.
@@ -74,6 +57,10 @@ type SendPhotoArgs struct {
 
 func (a SendPhotoArgs) methodName() string {
 	return "sendPhoto"
+}
+
+func (a SendPhotoArgs) toJSON() ([]byte, error) {
+	return json.Marshal(a)
 }
 
 func (a SendPhotoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {

@@ -2,7 +2,6 @@ package TeleGogo
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -30,7 +29,6 @@ func (c *client) GetUpdates(options GetUpdatesOptions) ([]Update, error) {
 		return nil, err
 	}
 
-	defer httpResponse.Body.Close()
 	responseObj := updateResponse{}
 	decoder := json.NewDecoder(httpResponse.Body)
 
@@ -38,6 +36,7 @@ func (c *client) GetUpdates(options GetUpdatesOptions) ([]Update, error) {
 	if err != nil {
 		return nil, err
 	}
+	httpResponse.Body.Close()
 
 	return responseObj.Result, err
 }
@@ -51,11 +50,12 @@ func (c *client) SetWebhook(args SetWebhookArgs) error {
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
 		return responseToError(response)
 	}
+	response.Body.Close()
+
 	return nil
 }
 
@@ -94,16 +94,14 @@ func (c *client) WhoAmI() (User, error) {
 		return User{}, err
 	}
 
-	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		var responseBuffer = make([]byte, 1024)
-		len, _ := response.Body.Read(responseBuffer)
-		return User{}, fmt.Errorf("Bad response: %s; (%s)", response.Status, string(responseBuffer[:len]))
+		return User{}, responseToError(response)
 	}
 	tgResp := userResponse{}
 	decoder := json.NewDecoder(response.Body)
 
 	err = decoder.Decode(&tgResp)
+	response.Body.Close()
 
 	return tgResp.Result, err
 }
@@ -114,7 +112,6 @@ func (c *client) SendMessage(args SendMessageArgs) (Message, error) {
 	if err != nil {
 		return Message{}, err
 	}
-	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
 		return Message{}, responseToError(response)
 	}
@@ -123,6 +120,7 @@ func (c *client) SendMessage(args SendMessageArgs) (Message, error) {
 	sentMsgResponse := messageReply{}
 
 	err = decoder.Decode(&sentMsgResponse)
+	response.Body.Close()
 
 	return sentMsgResponse.Result, err
 }
@@ -147,8 +145,10 @@ func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
 
 func (c *client) sendNewPhoto(args SendPhotoArgs) (Message, error) {
 	response, err := c.sendFile(args)
+	if err != nil {
+		return Message{}, err
+	}
 
-	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
 		return Message{}, responseToError(response)
 	}
@@ -159,16 +159,30 @@ func (c *client) sendNewPhoto(args SendPhotoArgs) (Message, error) {
 		return Message{}, err
 	}
 
+	response.Body.Close()
 	return msgReply.Result, err
 }
 
 func (c *client) sendExistingPhoto(args SendPhotoArgs) (Message, error) {
-	panic("not yet")
+	response, err := c.sendJSON(args)
+	if err != nil {
+		return Message{}, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
+	}
+	msg := messageReply{}
+	decoder := json.NewDecoder(response.Body)
+	if err = decoder.Decode(&msg); err != nil {
+		return Message{}, err
+	}
+	response.Body.Close()
+	return msg.Result, err
 }
 
 func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 	/* Decide whether this is a newly uploaded file or an old one. */
-	if args.PhotoPath == "" {
+	if args.FileID == "" {
 		return c.sendNewPhoto(args)
 	}
 	return c.sendExistingPhoto(args)
@@ -180,7 +194,6 @@ func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
 		return Message{}, err
 	}
 
-	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
 		return Message{}, responseToError(response)
 	}
@@ -190,38 +203,26 @@ func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
 	if err = decoder.Decode(&msgReply); err != nil {
 		return Message{}, err
 	}
+	response.Body.Close()
 
 	return msgReply.Result, err
 }
 
-// ResendPhoto Use this method to send photos already on the Telegram servers.
-// On success, the sent Message is returned.
-func (c *client) ResendPhoto(args ResendPhotoArgs) (Message, error) {
-	jsonBytes, err := args.toJSON()
-
-	m := Message{}
+func (c *client) resendPhoto(args SendPhotoArgs) (Message, error) {
+	response, err := c.sendJSON(args)
 	if err != nil {
-		return m, err
+		return Message{}, err
 	}
-	post, err := Requests.CreateBotPostJSON(c.token, "sendPhoto", jsonBytes)
-	if err != nil {
-		return m, err
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
 	}
-	tgResponse, err := c.httpClient.Do(post)
-	if err != nil {
-		return m, err
-	}
-	defer tgResponse.Body.Close()
-	if tgResponse.StatusCode != http.StatusOK {
-		var buffer = make([]byte, 1024)
-		len, _ := tgResponse.Body.Read(buffer)
-		return m, fmt.Errorf("Bad response: %s; (%s)", tgResponse.Status, string(buffer[:len]))
-	}
-	decoder := json.NewDecoder(tgResponse.Body)
+	decoder := json.NewDecoder(response.Body)
 	msgResponse := messageReply{}
 	if err = decoder.Decode(&msgResponse); err != nil {
-		return m, err
+		return Message{}, err
 	}
+	response.Body.Close()
+
 	return msgResponse.Result, nil
 }
 
@@ -242,7 +243,6 @@ type Client interface {
 	SendMessage(SendMessageArgs) (Message, error)
 	ForwardMessage(ForwardMessageArgs) (Message, error)
 	SetWebhook(SetWebhookArgs) error
-	ResendPhoto(ResendPhotoArgs) (Message, error)
 	SendPhoto(SendPhotoArgs) (Message, error)
 	SendAudio(SendAudioArgs) (Message, error)
 }
