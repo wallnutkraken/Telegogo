@@ -25,13 +25,13 @@ func TestResendAudio(t *testing.T) {
 	updates, err := bot.GetUpdates(GetUpdatesOptions{})
 	assert.NoError(t, err, "Could not get updates; test inconclusive")
 
-	var audio *Audio
+	var audio Audio
 	for _, update := range updates {
-		if update.Message.Audio.Duration != 0 {
-			audio = &update.Message.Audio
+		if update.Message.Audio.FileID != "" {
+			audio = update.Message.Audio
 		}
 	}
-	assert.NotNil(t, audio, "No audio files in updates; inconclusive")
+	assert.NotEqual(t, audio.FileID, "", "No file ID")
 	msg, err := bot.SendAudio(SendAudioArgs{ChatID: testingID, AudioFileID: audio.FileID})
 	assert.NoError(t, err)
 	assert.NotZero(t, msg.Audio.FileSize, "No audio in returned message")
