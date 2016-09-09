@@ -116,13 +116,7 @@ func (c *client) SendMessage(args SendMessageArgs) (Message, error) {
 		return Message{}, responseToError(response)
 	}
 
-	decoder := json.NewDecoder(response.Body)
-	sentMsgResponse := messageReply{}
-
-	err = decoder.Decode(&sentMsgResponse)
-	response.Body.Close()
-
-	return sentMsgResponse.Result, err
+	return responseToMessage(response)
 }
 
 func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
@@ -135,12 +129,7 @@ func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
 		return Message{}, responseToError(response)
 	}
 
-	decoder := json.NewDecoder(response.Body)
-	sentMsgResponse := messageReply{}
-
-	err = decoder.Decode(&sentMsgResponse)
-
-	return sentMsgResponse.Result, err
+	return responseToMessage(response)
 }
 
 func (c *client) sendNewPhoto(args SendPhotoArgs) (Message, error) {
@@ -153,14 +142,7 @@ func (c *client) sendNewPhoto(args SendPhotoArgs) (Message, error) {
 		return Message{}, responseToError(response)
 	}
 	/* Read reply */
-	msgReply := messageReply{}
-	decoder := json.NewDecoder(response.Body)
-	if err = decoder.Decode(&msgReply); err != nil {
-		return Message{}, err
-	}
-
-	response.Body.Close()
-	return msgReply.Result, err
+	return responseToMessage(response)
 }
 
 func (c *client) sendExistingPhoto(args SendPhotoArgs) (Message, error) {
@@ -171,13 +153,7 @@ func (c *client) sendExistingPhoto(args SendPhotoArgs) (Message, error) {
 	if response.StatusCode != http.StatusOK {
 		return Message{}, responseToError(response)
 	}
-	msg := messageReply{}
-	decoder := json.NewDecoder(response.Body)
-	if err = decoder.Decode(&msg); err != nil {
-		return Message{}, err
-	}
-	response.Body.Close()
-	return msg.Result, err
+	return responseToMessage(response)
 }
 
 // SendPhoto Use this method to send photos. On success, the sent Message is returned.
@@ -199,14 +175,7 @@ func (c *client) sendNewAudio(args SendAudioArgs) (Message, error) {
 		return Message{}, responseToError(response)
 	}
 	/* Read reply */
-	msgReply := messageReply{}
-	decoder := json.NewDecoder(response.Body)
-	if err = decoder.Decode(&msgReply); err != nil {
-		return Message{}, err
-	}
-	response.Body.Close()
-
-	return msgReply.Result, err
+	return responseToMessage(response)
 }
 
 func (c *client) sendExistingAudio(args SendAudioArgs) (Message, error) {
