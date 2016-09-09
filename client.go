@@ -192,7 +192,7 @@ func (c *client) sendExistingAudio(args SendAudioArgs) (Message, error) {
 
 func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
 	/* Decide if it's a new or existing file, based on user intent */
-	if args.AudioFileID != "" {
+	if args.AudioPath != "" {
 		return c.sendNewAudio(args)
 	}
 	return c.sendExistingAudio(args)
@@ -219,7 +219,7 @@ func (c *client) resendPhoto(args SendPhotoArgs) (Message, error) {
 func responseToMessage(response *http.Response) (Message, error) {
 	msg := messageReply{}
 	decoder := json.NewDecoder(response.Body)
-	err := decoder.Decode(msg)
+	err := decoder.Decode(&msg)
 	defer response.Body.Close()
 	return msg.Result, err
 }
