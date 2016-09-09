@@ -47,25 +47,15 @@ func (c *client) GetUpdates(options GetUpdatesOptions) ([]Update, error) {
 // containing a JSON-serialized Update. In case of an unsuccessful request, we will give up after a
 // reasonable amount of attempts.
 func (c *client) SetWebhook(args SetWebhookArgs) error {
-	postBody, buffer, err := args.toMultiform()
-
+	response, err := c.sendFile(args)
 	if err != nil {
 		return err
 	}
-	req, err := Requests.CreateBotPOST(c.token, "setWebook", buffer)
-	req.Header.Set("Content-Type", postBody.FormDataContentType())
+	defer response.Body.Close()
 
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return err
+	if response.StatusCode != http.StatusOK {
+		return responseToError(response)
 	}
-
-	if resp.StatusCode != http.StatusOK {
-		var responseBuffer = make([]byte, 1024)
-		len, _ := resp.Body.Read(responseBuffer)
-		return fmt.Errorf("Bad response: %s; (%s)", resp.Status, string(responseBuffer[:len]))
-	}
-	resp.Body.Close()
 	return nil
 }
 
@@ -120,26 +110,16 @@ func (c *client) WhoAmI() (User, error) {
 
 // SendMessage sends a message with the specified arguments. On success returns the sent Message.
 func (c *client) SendMessage(args SendMessageArgs) (Message, error) {
-	jsonBytes, err := args.toJSON()
+	response, err := c.sendJSON(args)
 	if err != nil {
 		return Message{}, err
 	}
-	get, err := Requests.CreateBotPostJSON(c.token, "sendMessage", jsonBytes)
-	if err != nil {
-		return Message{}, err
-	}
-	tgResponse, err := c.httpClient.Do(get)
-	if err != nil {
-		return Message{}, err
-	}
-	defer tgResponse.Body.Close()
-	if tgResponse.StatusCode != http.StatusOK {
-		var responseBuffer = make([]byte, 1024)
-		len, _ := tgResponse.Body.Read(responseBuffer)
-		return Message{}, fmt.Errorf("Bad response: %s; (%s)", tgResponse.Status, string(responseBuffer[:len]))
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
 	}
 
-	decoder := json.NewDecoder(tgResponse.Body)
+	decoder := json.NewDecoder(response.Body)
 	sentMsgResponse := messageReply{}
 
 	err = decoder.Decode(&sentMsgResponse)
@@ -148,26 +128,16 @@ func (c *client) SendMessage(args SendMessageArgs) (Message, error) {
 }
 
 func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
-	jsonBytes, err := args.toJSON()
+	response, err := c.sendJSON(args)
 	if err != nil {
 		return Message{}, err
 	}
-	get, err := Requests.CreateBotPostJSON(c.token, "forwardMessage", jsonBytes)
-	if err != nil {
-		return Message{}, err
-	}
-	tgResponse, err := c.httpClient.Do(get)
-	if err != nil {
-		return Message{}, err
-	}
-	defer tgResponse.Body.Close()
-	if tgResponse.StatusCode != http.StatusOK {
-		var responseBuffer = make([]byte, 1024)
-		len, _ := tgResponse.Body.Read(responseBuffer)
-		return Message{}, fmt.Errorf("Bad response: %s; (%s)", tgResponse.Status, string(responseBuffer[:len]))
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
 	}
 
-	decoder := json.NewDecoder(tgResponse.Body)
+	decoder := json.NewDecoder(response.Body)
 	sentMsgResponse := messageReply{}
 
 	err = decoder.Decode(&sentMsgResponse)
@@ -176,33 +146,17 @@ func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
 }
 
 func (c *client) sendNewPhoto(args SendPhotoArgs) (Message, error) {
-	writer, buffer, err := args.toMultiPart()
-
-	m := Message{}
-	if err != nil {
-		return m, err
-	}
-
-	post, err := Requests.CreateBotPOST(c.token, "sendPhoto", buffer)
-	post.Header.Add("Content-Type", writer.FormDataContentType())
-
-	/* Send request */
-	response, err := c.httpClient.Do(post)
-	if err != nil {
-		return m, err
-	}
+	response, err := c.sendFile(args)
 
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		var responseBuffer = make([]byte, 1024)
-		len, _ := response.Body.Read(responseBuffer)
-		return m, fmt.Errorf("Bad response: %s; (%s)", response.Status, string(responseBuffer[:len]))
+		return Message{}, responseToError(response)
 	}
 	/* Read reply */
 	msgReply := messageReply{}
 	decoder := json.NewDecoder(response.Body)
 	if err = decoder.Decode(&msgReply); err != nil {
-		return m, err
+		return Message{}, err
 	}
 
 	return msgReply.Result, err
@@ -221,33 +175,20 @@ func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 }
 
 func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
-	writer, buffer, err := args.toMultiPart()
-
-	m := Message{}
+	response, err := c.sendFile(args)
 	if err != nil {
-		return m, err
-	}
-
-	post, err := Requests.CreateBotPOST(c.token, "sendAudio", buffer)
-	post.Header.Add("Content-Type", writer.FormDataContentType())
-
-	/* Send request */
-	response, err := c.httpClient.Do(post)
-	if err != nil {
-		return m, err
+		return Message{}, err
 	}
 
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
-		var responseBuffer = make([]byte, 1024)
-		len, _ := response.Body.Read(responseBuffer)
-		return m, fmt.Errorf("Bad response: %s; (%s)", response.Status, string(responseBuffer[:len]))
+		return Message{}, responseToError(response)
 	}
 	/* Read reply */
 	msgReply := messageReply{}
 	decoder := json.NewDecoder(response.Body)
 	if err = decoder.Decode(&msgReply); err != nil {
-		return m, err
+		return Message{}, err
 	}
 
 	return msgReply.Result, err

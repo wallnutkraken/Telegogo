@@ -14,7 +14,7 @@ type SetWebhookArgs struct {
 	CertificatePath string
 }
 
-func (a *SetWebhookArgs) toMultiform() (*multipart.Writer, *bytes.Buffer, error) {
+func (a SetWebhookArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
 	writer, buffer, err := createInputFileBody(a.CertificatePath, "certificate")
 
 	err = writer.WriteField("url", a.URL)
@@ -26,4 +26,8 @@ func (a *SetWebhookArgs) toMultiform() (*multipart.Writer, *bytes.Buffer, error)
 	}
 
 	return writer, buffer, nil
+}
+
+func (a SetWebhookArgs) methodName() string {
+	return "setWebhook"
 }

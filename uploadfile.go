@@ -50,8 +50,8 @@ type ResendPhotoArgs struct {
 	ReplyMarkup string `json:"reply_markup,omitempty"`
 }
 
-func (a *ResendPhotoArgs) toJSON() ([]byte, error) {
-	return json.Marshal(*a)
+func (a ResendPhotoArgs) toJSON() ([]byte, error) {
+	return json.Marshal(a)
 }
 
 // SendPhotoArgs represents the optional and required arguments for the SendPhoto method
@@ -72,11 +72,11 @@ type SendPhotoArgs struct {
 	ReplyMarkup string `json:"reply_markup,omitempty"`
 }
 
-func (a *SendPhotoArgs) methodName() string {
+func (a SendPhotoArgs) methodName() string {
 	return "sendPhoto"
 }
 
-func (a *SendPhotoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
+func (a SendPhotoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
 	writer, buffer, err := createInputFileBody(a.PhotoPath, "photo")
 	if err != nil {
 		return nil, nil, err
@@ -133,7 +133,7 @@ type SendAudioArgs struct {
 	ReplyMarkup string `json:"reply_markup,omitempty"`
 }
 
-func (a *SendAudioArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
+func (a SendAudioArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
 	writer, buffer, err := createInputFileBody(a.AudioPath, "audio")
 	if err != nil {
 		return nil, nil, err
@@ -170,15 +170,20 @@ func (a *SendAudioArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) 
 	return writer, buffer, nil
 }
 
-func (a *SendAudioArgs) methodName() string {
+func (a SendAudioArgs) methodName() string {
 	return "sendAudio"
 }
 
-func (a *SendAudioArgs) toJSON() ([]byte, error) {
-	return json.Marshal(*a)
+func (a SendAudioArgs) toJSON() ([]byte, error) {
+	return json.Marshal(a)
 }
 
 type fileUploader interface {
 	toMultiPart() (*multipart.Writer, *bytes.Buffer, error)
+	methodName() string
+}
+
+type jsonUploader interface {
+	toJSON() ([]byte, error)
 	methodName() string
 }

@@ -125,8 +125,12 @@ type SendMessageArgs struct {
 	ReplyMarkup string `json:"reply_markup,omitempty"`
 }
 
-func (a *SendMessageArgs) toJSON() ([]byte, error) {
-	return json.Marshal(*a)
+func (a SendMessageArgs) toJSON() ([]byte, error) {
+	return json.Marshal(a)
+}
+
+func (a SendMessageArgs) methodName() string {
+	return "sendMessage"
 }
 
 // ForwardMessageArgs represents the optional and required arguments for the ForwardMessage message
@@ -143,6 +147,10 @@ type ForwardMessageArgs struct {
 	MessageID int `json:"message_id"`
 }
 
-func (f *ForwardMessageArgs) toJSON() ([]byte, error) {
-	return json.Marshal(*f)
+func (f ForwardMessageArgs) toJSON() ([]byte, error) {
+	return json.Marshal(f)
+}
+
+func (f ForwardMessageArgs) methodName() string {
+	return "forwardMessage"
 }
