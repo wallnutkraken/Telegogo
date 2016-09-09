@@ -1,5 +1,7 @@
 # TeleGogo
 
+[![Build Status](https://travis-ci.org/wallnutkraken/Telegogo.svg?branch=master)](https://travis-ci.org/wallnutkraken/Telegogo)
+
 A Telegram bot api?
 
 # Need help
