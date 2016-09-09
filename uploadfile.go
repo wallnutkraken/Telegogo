@@ -82,22 +82,28 @@ func (a *SendPhotoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, *os.Fil
 type SendAudioArgs struct {
 	// ChatID Required. Unique identifier for the target chat or username of the target channel
 	// (in the format @channelusername)
-	ChatID string
-	// AudioID Required. Path to audio file on device.
-	AudioPath string
+	ChatID string `json:"chat_id"`
+	// AudioPath Required. Path to audio file on device IF uploading a new file. If you are trying to
+	// send an audio file which is already on Telegram's servers, please keep this field empty and
+	// use the AudioFileID field.
+	AudioPath string `json:"-"`
+	// AudioFileID Required. File ID of the audio file you want to send. If you are trying to
+	// send a new audio file which is not already on Telegram's servers that you know of, please keep
+	// this field empty and use the AudioPath field instead
+	AudioFileID string `json:"audio"`
 	// Duration Optional. Duration of the audio in seconds
-	Duration int
+	Duration int `json:"duration,omitempty"`
 	// Performer Optional.
-	Performer string
+	Performer string `json:"performer,omitempty"`
 	// Title Optional. Track name
-	Title string
+	Title string `json:"title,omitempty"`
 	// DisableNotification Optional. Sends the message silently.
-	DisableNotification bool
+	DisableNotification bool `json:"disable_notification,omitempty"`
 	// ReplyToMessageID Optional. If the message is a reply, ID of the original message
-	ReplyToMessageID int
+	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
 	// ReplyMarkup Optional. Additional interface options. A JSON-serialized object for an inline keyboard,
 	// custom reply keyboard, instructions to hide reply keyboard or to force a reply from the user.
-	ReplyMarkup string
+	ReplyMarkup string `json:"reply_markup,omitempty"`
 }
 
 func (a *SendAudioArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, *os.File, error) {
@@ -106,4 +112,8 @@ func (a *SendAudioArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, *os.Fil
 		return nil, nil, nil, err
 	}
 	return writer, buffer, file, nil
+}
+
+func (a *SendAudioArgs) toJSON() ([]byte, error) {
+	return json.Marshal(*a)
 }
