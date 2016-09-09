@@ -48,8 +48,8 @@ func (c *client) GetUpdates(options GetUpdatesOptions) ([]Update, error) {
 // containing a JSON-serialized Update. In case of an unsuccessful request, we will give up after a
 // reasonable amount of attempts.
 func (c *client) SetWebhook(args SetWebhookArgs) error {
-	postBody, buffer, file, err := args.toMultiform()
-	defer file.Close()
+	postBody, buffer, err := args.toMultiform()
+
 	if err != nil {
 		return err
 	}
@@ -177,8 +177,8 @@ func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
 }
 
 func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
-	writer, buffer, file, err := args.toMultiPart()
-	defer file.Close()
+	writer, buffer, err := args.toMultiPart()
+
 	m := Message{}
 	if err != nil {
 		return m, err
@@ -231,8 +231,8 @@ func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 }
 
 func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
-	writer, buffer, file, err := args.toMultiPart()
-	defer file.Close()
+	writer, buffer, err := args.toMultiPart()
+
 	m := Message{}
 	if err != nil {
 		return m, err

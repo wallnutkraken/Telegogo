@@ -10,23 +10,24 @@ import (
 
 // createInputFileBody reads a file and creates a multipart writer for POSTing with the file and
 // the form name
-func createInputFileBody(path string, formName string) (*multipart.Writer, *bytes.Buffer, *os.File, error) {
+func createInputFileBody(path string, formName string) (*multipart.Writer, *bytes.Buffer, error) {
 	var buffer bytes.Buffer
 	writer := multipart.NewWriter(&buffer)
 
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
+	defer file.Close()
 
 	fileUpload, err := writer.CreateFormFile(formName, path)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 	if _, err := io.Copy(fileUpload, file); err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
-	return writer, &buffer, file, nil
+	return writer, &buffer, nil
 }
 
 // ResendPhotoArgs represents the optional and required arguments used when resending an already
@@ -70,12 +71,12 @@ type SendPhotoArgs struct {
 	ReplyMarkup string `json:"reply_markup,omitempty"`
 }
 
-func (a *SendPhotoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, *os.File, error) {
-	writer, buffer, file, err := createInputFileBody(a.PhotoPath, "photo")
+func (a *SendPhotoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
+	writer, buffer, err := createInputFileBody(a.PhotoPath, "photo")
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
-	return writer, buffer, file, nil
+	return writer, buffer, nil
 }
 
 // SendAudioArgs represents the optional and required arguments for the SendAudio method
@@ -106,12 +107,12 @@ type SendAudioArgs struct {
 	ReplyMarkup string `json:"reply_markup,omitempty"`
 }
 
-func (a *SendAudioArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, *os.File, error) {
-	writer, buffer, file, err := createInputFileBody(a.AudioPath, "audio")
+func (a *SendAudioArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
+	writer, buffer, err := createInputFileBody(a.AudioPath, "audio")
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
-	return writer, buffer, file, nil
+	return writer, buffer, nil
 }
 
 func (a *SendAudioArgs) toJSON() ([]byte, error) {
