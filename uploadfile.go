@@ -6,6 +6,7 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"strconv"
 )
 
 // createInputFileBody reads a file and creates a multipart writer for POSTing with the file and
@@ -71,9 +72,34 @@ type SendPhotoArgs struct {
 	ReplyMarkup string `json:"reply_markup,omitempty"`
 }
 
+func (a *SendPhotoArgs) methodName() string {
+	return "sendPhoto"
+}
+
 func (a *SendPhotoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
 	writer, buffer, err := createInputFileBody(a.PhotoPath, "photo")
 	if err != nil {
+		return nil, nil, err
+	}
+	/* Add ChatID */
+	writer.WriteField("chat_id", a.ChatID)
+
+	/* Optional args */
+	if a.Caption != "" {
+		writer.WriteField("caption", a.Caption)
+	}
+	if a.DisableNotification == true {
+		writer.WriteField("disable_notification", "true")
+	}
+	if a.ReplyMarkup != "" {
+		writer.WriteField("reply_markup", a.ReplyMarkup)
+	}
+	if a.ReplyToMessageID != 0 {
+		writer.WriteField("reply_to_message_id", strconv.Itoa(a.ReplyToMessageID))
+	}
+
+	/* Close the writer; we're done with the body of the request. */
+	if err = writer.Close(); err != nil {
 		return nil, nil, err
 	}
 	return writer, buffer, nil
@@ -112,9 +138,47 @@ func (a *SendAudioArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) 
 	if err != nil {
 		return nil, nil, err
 	}
+
+	/* Add ChatID */
+	writer.WriteField("chat_id", a.ChatID)
+
+	/* Optional args */
+	if a.Duration != 0 {
+		writer.WriteField("duration", strconv.Itoa(a.Duration))
+	}
+	if a.Performer != "" {
+		writer.WriteField("performer", a.Performer)
+	}
+	if a.Title != "" {
+		writer.WriteField("title", a.Title)
+	}
+	if a.DisableNotification == true {
+		writer.WriteField("disable_notification", "true")
+	}
+	if a.ReplyMarkup != "" {
+		writer.WriteField("reply_markup", a.ReplyMarkup)
+	}
+	if a.ReplyToMessageID != 0 {
+		writer.WriteField("reply_to_message_id", strconv.Itoa(a.ReplyToMessageID))
+	}
+
+	/* Close the writer; we're done with the body of the request. */
+	if err = writer.Close(); err != nil {
+		return nil, nil, err
+	}
+
 	return writer, buffer, nil
+}
+
+func (a *SendAudioArgs) methodName() string {
+	return "sendAudio"
 }
 
 func (a *SendAudioArgs) toJSON() ([]byte, error) {
 	return json.Marshal(*a)
+}
+
+type fileUploader interface {
+	toMultiPart() (*multipart.Writer, *bytes.Buffer, error)
+	methodName() string
 }

@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/wallnutkraken/TeleGogo/Requests"
 )
@@ -176,32 +175,11 @@ func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
 	return sentMsgResponse.Result, err
 }
 
-func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
+func (c *client) sendNewPhoto(args SendPhotoArgs) (Message, error) {
 	writer, buffer, err := args.toMultiPart()
 
 	m := Message{}
 	if err != nil {
-		return m, err
-	}
-	/* Add ChatID */
-	writer.WriteField("chat_id", args.ChatID)
-
-	/* Optional args */
-	if args.Caption != "" {
-		writer.WriteField("caption", args.Caption)
-	}
-	if args.DisableNotification == true {
-		writer.WriteField("disable_notification", "true")
-	}
-	if args.ReplyMarkup != "" {
-		writer.WriteField("reply_markup", args.ReplyMarkup)
-	}
-	if args.ReplyToMessageID != 0 {
-		writer.WriteField("reply_to_message_id", strconv.Itoa(args.ReplyToMessageID))
-	}
-
-	/* Close the writer; we're done with the body of the request. */
-	if err = writer.Close(); err != nil {
 		return m, err
 	}
 
@@ -230,38 +208,23 @@ func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 	return msgReply.Result, err
 }
 
+func (c *client) sendExistingPhoto(args SendPhotoArgs) (Message, error) {
+	panic("not yet")
+}
+
+func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
+	/* Decide whether this is a newly uploaded file or an old one. */
+	if args.PhotoPath == "" {
+		return c.sendNewPhoto(args)
+	}
+	return c.sendExistingPhoto(args)
+}
+
 func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
 	writer, buffer, err := args.toMultiPart()
 
 	m := Message{}
 	if err != nil {
-		return m, err
-	}
-	/* Add ChatID */
-	writer.WriteField("chat_id", args.ChatID)
-
-	/* Optional args */
-	if args.Duration != 0 {
-		writer.WriteField("duration", strconv.Itoa(args.Duration))
-	}
-	if args.Performer != "" {
-		writer.WriteField("performer", args.Performer)
-	}
-	if args.Title != "" {
-		writer.WriteField("title", args.Title)
-	}
-	if args.DisableNotification == true {
-		writer.WriteField("disable_notification", "true")
-	}
-	if args.ReplyMarkup != "" {
-		writer.WriteField("reply_markup", args.ReplyMarkup)
-	}
-	if args.ReplyToMessageID != 0 {
-		writer.WriteField("reply_to_message_id", strconv.Itoa(args.ReplyToMessageID))
-	}
-
-	/* Close the writer; we're done with the body of the request. */
-	if err = writer.Close(); err != nil {
 		return m, err
 	}
 
