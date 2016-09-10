@@ -282,6 +282,80 @@ func (a SendStickerArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error)
 	return writer, buffer, nil
 }
 
+// SendVideoArgs represents the optional and required arguments for the SendVideo method
+type SendVideoArgs struct {
+	// ChatID Required. Unique identifier for the target chat or username of the target channel
+	// (in the format @channelusername)
+	ChatID string `json:"chat_id"`
+	// VideoPath Required. File path of the video you want to send. If you want to send a video that already
+	// exists on Telegram's servers and you know it's file ID, use VideoID instead.
+	VideoPath string `json:"-"`
+	// VideoID Required. File ID of the video you want to send. TO upload a new video file, please use
+	// VideoPath instead.
+	VideoID string `json:"video"`
+	// Duration Optional. Duration of sent video in seconds
+	Duration int `json:"duration, omitempty"`
+	// Width Optional. Video width
+	Width int `json:"width,omitempty"`
+	// Height Optional. Video height
+	Height int `json:"height,omitempty"`
+	// Caption Optional. Video caption, 0-200 characters
+	Caption string `json:"caption"`
+	// DisableNotification Optional. Sends the message silently.
+	DisableNotification bool `json:"disable_notification,omitempty"`
+	// ReplyToMessageID Optional. If the message is a reply, ID of the original message
+	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
+	// ReplyMarkup Optional. Additional interface options.
+	ReplyMarkup string `json:"reply_markup,omitempty"`
+}
+
+func (a SendVideoArgs) toJSON() ([]byte, error) {
+	return json.Marshal(a)
+}
+
+func (a SendVideoArgs) methodName() string {
+	return "sendVideo"
+}
+
+func (a SendVideoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
+	writer, buffer, err := createInputFileBody(a.VideoPath, "video")
+	if err != nil {
+		return nil, nil, err
+	}
+	/* Add ChatID */
+	writer.WriteField("chat_id", a.ChatID)
+
+	/* Optional args */
+	if a.Duration != 0 {
+		writer.WriteField("duration", strconv.Itoa(a.Duration))
+	}
+	if a.Width != 0 {
+		writer.WriteField("width", strconv.Itoa(a.Width))
+	}
+	if a.Height != 0 {
+		writer.WriteField("height", strconv.Itoa(a.Height))
+	}
+	if a.Caption != "" {
+		writer.WriteField("caption", a.Caption)
+	}
+	if a.DisableNotification == true {
+		writer.WriteField("disable_notification", "true")
+	}
+	if a.ReplyToMessageID != 0 {
+		writer.WriteField("reply_to_message_id", strconv.Itoa(a.ReplyToMessageID))
+	}
+	if a.ReplyMarkup != "" {
+		writer.WriteField("reply_markup", a.ReplyMarkup)
+	}
+
+	/* Close the writer; we're done with the body of the request. */
+	if err = writer.Close(); err != nil {
+		return nil, nil, err
+	}
+
+	return writer, buffer, nil
+}
+
 type fileUploader interface {
 	toMultiPart() (*multipart.Writer, *bytes.Buffer, error)
 	methodName() string

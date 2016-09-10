@@ -156,15 +156,12 @@ func (c *client) SendSticker(args SendStickerArgs) (Message, error) {
 	return c.sendJSONMessage(args)
 }
 
-func (c *client) resendPhoto(args SendPhotoArgs) (Message, error) {
-	response, err := c.sendJSON(args)
-	if err != nil {
-		return Message{}, err
+func (c *client) SendVideo(args SendVideoArgs) (Message, error) {
+	/* Decide if the video is an existing or a new video, based on args */
+	if args.VideoPath != "" {
+		return c.sendFileMessage(args)
 	}
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-	return responseToMessage(response)
+	return c.sendJSONMessage(args)
 }
 
 func responseToMessage(response *http.Response) (Message, error) {
@@ -196,4 +193,5 @@ type Client interface {
 	SendAudio(SendAudioArgs) (Message, error)
 	SendDocument(SendDocumentArgs) (Message, error)
 	SendSticker(SendStickerArgs) (Message, error)
+	SendVideo(SendVideoArgs) (Message, error)
 }
