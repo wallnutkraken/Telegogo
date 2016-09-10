@@ -18,20 +18,12 @@ func TestSendNewDocument(t *testing.T) {
 }
 
 func TestResendDocument(t *testing.T) {
+	const docID = "BQADBAADPAADjT7dDavEmb2gmPHeAg"
 	ass := assert.New(t)
 	bot, err := NewClient(testBotToken)
 	ass.NoError(err)
 
-	updates, err := bot.GetUpdates(GetUpdatesOptions{})
-	var update *Document
-	for _, upd := range updates {
-		if upd.Message.Document.FileSize != 0 {
-			update = &upd.Message.Document
-		}
-	}
-	ass.NotNil(update, "Found no update with a Document in it; inconclusive")
-
-	msg, err := bot.SendDocument(SendDocumentArgs{ChatID: testingID, DocumentFileID: update.FileID})
+	msg, err := bot.SendDocument(SendDocumentArgs{ChatID: testingID, DocumentFileID: docID})
 	ass.NoError(err)
 	ass.NotZero(msg.Document.FileSize, "No document in returned message")
 }

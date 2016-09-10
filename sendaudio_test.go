@@ -19,20 +19,11 @@ func TestSendAudio(t *testing.T) {
 }
 
 func TestResendAudio(t *testing.T) {
+	const audioID = "BQADBAADKAADjT7dDeoWcahVii-dAg"
 	bot, err := NewClient(testBotToken)
 	assert.NoError(t, err)
 
-	updates, err := bot.GetUpdates(GetUpdatesOptions{})
-	assert.NoError(t, err, "Could not get updates; test inconclusive")
-
-	var audio Audio
-	for _, update := range updates {
-		if update.Message.Audio.FileID != "" {
-			audio = update.Message.Audio
-		}
-	}
-	assert.NotEqual(t, audio.FileID, "", "No file ID")
-	msg, err := bot.SendAudio(SendAudioArgs{ChatID: testingID, AudioFileID: audio.FileID})
+	msg, err := bot.SendAudio(SendAudioArgs{ChatID: testingID, AudioFileID: audioID})
 	assert.NoError(t, err)
 	assert.NotZero(t, msg.Audio.FileSize, "No audio in returned message")
 }
