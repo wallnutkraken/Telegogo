@@ -356,6 +356,27 @@ func (a SendVideoArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
 	return writer, buffer, nil
 }
 
+// SendVoiceArgs represents the optional and required arguments for the SendVoice method
+type SendVoiceArgs struct {
+	// ChatID Required. Unique identifier for the target chat or username of the target channel
+	// (in the format @channelusername)
+	ChatID string `json:"chat_id"`
+	// VoicePath Required. File path of the voice you want to send. If you want to send a voice that already
+	// exists on Telegram's servers and you know it's file ID, use VoiceID instead.
+	VoicePath string `json:"-"`
+	// VoiceID Required. File ID of the voice you want to send. To upload a new voice file, please use
+	// VoicePath instead.
+	VoiceID string `json:"voice"`
+	// Duration Optional. Duration of sent audio in seconds
+	Duration int `json:"duration"`
+	// DisableNotification Optional. Sends the message silently.
+	DisableNotification bool `json:"disable_notification,omitempty"`
+	// ReplyToMessageID Optional. If the message is a reply, ID of the original message
+	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
+	// ReplyMarkup Optional. Additional interface options.
+	ReplyMarkup string `json:"reply_markup,omitempty"`
+}
+
 type fileUploader interface {
 	toMultiPart() (*multipart.Writer, *bytes.Buffer, error)
 	methodName() string
