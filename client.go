@@ -104,15 +104,7 @@ func (c *client) WhoAmI() (User, error) {
 
 // SendMessage sends a message with the specified arguments. On success returns the sent Message.
 func (c *client) SendMessage(args SendMessageArgs) (Message, error) {
-	response, err := c.sendJSON(args)
-	if err != nil {
-		return Message{}, err
-	}
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-
-	return responseToMessage(response)
+	return c.sendJSONMessage(args)
 }
 
 func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
@@ -128,94 +120,21 @@ func (c *client) ForwardMessage(args ForwardMessageArgs) (Message, error) {
 	return responseToMessage(response)
 }
 
-func (c *client) sendNewPhoto(args SendPhotoArgs) (Message, error) {
-	response, err := c.sendFile(args)
-	if err != nil {
-		return Message{}, err
-	}
-
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-	/* Read reply */
-	return responseToMessage(response)
-}
-
-func (c *client) sendExistingPhoto(args SendPhotoArgs) (Message, error) {
-	response, err := c.sendJSON(args)
-	if err != nil {
-		return Message{}, err
-	}
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-	return responseToMessage(response)
-}
-
 // SendPhoto Use this method to send photos. On success, the sent Message is returned.
 func (c *client) SendPhoto(args SendPhotoArgs) (Message, error) {
 	/* Decide whether this is a newly uploaded file or an old one. */
 	if args.FileID == "" {
-		return c.sendNewPhoto(args)
+		return c.sendFileMessage(args)
 	}
-	return c.sendExistingPhoto(args)
-}
-
-func (c *client) sendNewAudio(args SendAudioArgs) (Message, error) {
-	response, err := c.sendFile(args)
-	if err != nil {
-		return Message{}, err
-	}
-
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-	/* Read reply */
-	return responseToMessage(response)
-}
-
-func (c *client) sendExistingAudio(args SendAudioArgs) (Message, error) {
-	response, err := c.sendJSON(args)
-	if err != nil {
-		return Message{}, err
-	}
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-	/* Parse reply */
-	return responseToMessage(response)
+	return c.sendJSONMessage(args)
 }
 
 func (c *client) SendAudio(args SendAudioArgs) (Message, error) {
 	/* Decide if it's a new or existing file, based on user intent */
 	if args.AudioPath != "" {
-		return c.sendNewAudio(args)
+		return c.sendFileMessage(args)
 	}
-	return c.sendExistingAudio(args)
-}
-
-func (c *client) sendNewDocument(args SendDocumentArgs) (Message, error) {
-	response, err := c.sendFile(args)
-	if err != nil {
-		return Message{}, err
-	}
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-
-	return responseToMessage(response)
-}
-
-func (c *client) sendExistingDocument(args SendDocumentArgs) (Message, error) {
-	response, err := c.sendJSON(args)
-	if err != nil {
-		return Message{}, err
-	}
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-
-	return responseToMessage(response)
+	return c.sendJSONMessage(args)
 }
 
 // SendDocument Use this method to send general files. On success, the sent Message is returned.
@@ -223,42 +142,18 @@ func (c *client) sendExistingDocument(args SendDocumentArgs) (Message, error) {
 func (c *client) SendDocument(args SendDocumentArgs) (Message, error) {
 	/* Decide if the document is a resend or a new file, based on args */
 	if args.DocumentPath != "" {
-		return c.sendNewDocument(args)
+		return c.sendFileMessage(args)
 	}
-	return c.sendExistingDocument(args)
-}
-
-func (c *client) sendNewSticker(args SendStickerArgs) (Message, error) {
-	response, err := c.sendFile(args)
-	if err != nil {
-		return Message{}, err
-	}
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-
-	return responseToMessage(response)
-}
-
-func (c *client) sendExistingSticker(args SendStickerArgs) (Message, error) {
-	response, err := c.sendJSON(args)
-	if err != nil {
-		return Message{}, err
-	}
-	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
-	}
-
-	return responseToMessage(response)
+	return c.sendJSONMessage(args)
 }
 
 // SendSticker Use this method to send .webp stickers. On success, the sent Message is returned.
 func (c *client) SendSticker(args SendStickerArgs) (Message, error) {
 	/* Decide if the sticker is a existing or a new sticker, based on args */
 	if args.StickerPath != "" {
-		return c.sendNewSticker(args)
+		return c.sendFileMessage(args)
 	}
-	return c.sendExistingSticker(args)
+	return c.sendJSONMessage(args)
 }
 
 func (c *client) resendPhoto(args SendPhotoArgs) (Message, error) {

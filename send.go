@@ -30,3 +30,27 @@ func (c *client) sendJSON(uploader jsonUploader) (*http.Response, error) {
 	}
 	return c.httpClient.Do(post)
 }
+
+func (c *client) sendFileMessage(uploader fileUploader) (Message, error) {
+	response, err := c.sendFile(uploader)
+	if err != nil {
+		return Message{}, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
+	}
+
+	return responseToMessage(response)
+}
+
+func (c *client) sendJSONMessage(uploader jsonUploader) (Message, error) {
+	response, err := c.sendJSON(uploader)
+	if err != nil {
+		return Message{}, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
+	}
+
+	return responseToMessage(response)
+}
