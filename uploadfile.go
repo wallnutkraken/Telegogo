@@ -227,6 +227,61 @@ func (a SendDocumentArgs) toJSON() ([]byte, error) {
 	return json.Marshal(a)
 }
 
+// SendStickerArgs represents the optional and required arguments for the SendSticker method
+type SendStickerArgs struct {
+	// ChatID Required. Unique identifier for the target chat or username of the target channel
+	// (in the format @channelusername)
+	ChatID string `json:"chat_id"`
+	// StickerPath Required. Use if uploading a sticker file (.webp). Represents the path to a sticker file.
+	// Only use if sending a new sticker. If sending an existing sticker, please use StickerPath.
+	StickerPath string `json:"-"`
+	// StickerID Required. Use if sending a sticker file that already exists. Represents the FileID of
+	// the sticker. If you want to send a new sticker from a file, please use StickerPath.
+	StickerID string `json:"sticker"`
+	//DisableNotification Optional. Sends a message silently.
+	DisableNotification bool `json:"disable_notification,omitempty"`
+	// ReplyToMessageID Optional. If the message is a reply, ID of the original message
+	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
+	// ReplyMarkupAdditional interface options. A JSON-serialized object for an inline keyboard,
+	// custom reply keyboard, instructions to hide reply keyboard or to force a reply from the user.
+	ReplyMarkup string `json:"reply_markup,omitempty"`
+}
+
+func (a SendStickerArgs) toJSON() ([]byte, error) {
+	return json.Marshal(a)
+}
+
+func (a SendStickerArgs) methodName() string {
+	return "sendSticker"
+}
+
+func (a SendStickerArgs) toMultiPart() (*multipart.Writer, *bytes.Buffer, error) {
+	writer, buffer, err := createInputFileBody(a.StickerPath, "sticker")
+	if err != nil {
+		return nil, nil, err
+	}
+	/* Add ChatID */
+	writer.WriteField("chat_id", a.ChatID)
+
+	/* Optional args */
+	if a.DisableNotification == true {
+		writer.WriteField("disable_notification", "true")
+	}
+	if a.ReplyToMessageID != 0 {
+		writer.WriteField("reply_to_message_id", strconv.Itoa(a.ReplyToMessageID))
+	}
+	if a.ReplyMarkup != "" {
+		writer.WriteField("reply_markup", a.ReplyMarkup)
+	}
+
+	/* Close the writer; we're done with the body of the request. */
+	if err = writer.Close(); err != nil {
+		return nil, nil, err
+	}
+
+	return writer, buffer, nil
+}
+
 type fileUploader interface {
 	toMultiPart() (*multipart.Writer, *bytes.Buffer, error)
 	methodName() string

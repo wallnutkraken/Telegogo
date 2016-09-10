@@ -228,6 +228,39 @@ func (c *client) SendDocument(args SendDocumentArgs) (Message, error) {
 	return c.sendExistingDocument(args)
 }
 
+func (c *client) sendNewSticker(args SendStickerArgs) (Message, error) {
+	response, err := c.sendFile(args)
+	if err != nil {
+		return Message{}, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
+	}
+
+	return responseToMessage(response)
+}
+
+func (c *client) sendExistingSticker(args SendStickerArgs) (Message, error) {
+	response, err := c.sendJSON(args)
+	if err != nil {
+		return Message{}, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return Message{}, responseToError(response)
+	}
+
+	return responseToMessage(response)
+}
+
+// SendSticker Use this method to send .webp stickers. On success, the sent Message is returned.
+func (c *client) SendSticker(args SendStickerArgs) (Message, error) {
+	/* Decide if the sticker is a existing or a new sticker, based on args */
+	if args.StickerPath != "" {
+		return c.sendNewSticker(args)
+	}
+	return c.sendExistingSticker(args)
+}
+
 func (c *client) resendPhoto(args SendPhotoArgs) (Message, error) {
 	response, err := c.sendJSON(args)
 	if err != nil {
@@ -267,4 +300,5 @@ type Client interface {
 	SendPhoto(SendPhotoArgs) (Message, error)
 	SendAudio(SendAudioArgs) (Message, error)
 	SendDocument(SendDocumentArgs) (Message, error)
+	SendSticker(SendStickerArgs) (Message, error)
 }
