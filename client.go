@@ -14,10 +14,6 @@ type client struct {
 	httpClient *http.Client
 }
 
-func (c *client) getToken() string {
-	return c.token
-}
-
 // GetUpdates receives incoming updates using long polling.
 func (c *client) GetUpdates(options GetUpdatesOptions) ([]Update, error) {
 	response, err := c.sendJSON(options)
@@ -57,7 +53,7 @@ func (c *client) SetWebhook(args SetWebhookArgs) error {
 
 // DownloadFile downloads the specified file
 func (c *client) DownloadFile(file File, path string) error {
-	get, err := Requests.CreateFileGet(c.getToken(), file.FilePath)
+	get, err := Requests.CreateFileGet(c.token, file.FilePath)
 	if err != nil {
 		return err
 	}
@@ -186,7 +182,6 @@ func NewClient(token string) (Client, error) {
 
 // Client represents a bot in Telegram.
 type Client interface {
-	getToken() string
 	DownloadFile(File, string) error
 	WhoAmI() (User, error)
 	GetUpdates(GetUpdatesOptions) ([]Update, error)
