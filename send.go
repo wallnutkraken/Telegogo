@@ -1,13 +1,14 @@
 package TeleGogo
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/wallnutkraken/TeleGogo/Requests"
 )
 
-func (c *client) sendFile(uploader fileUploader) (*http.Response, error) {
-	writer, buffer, err := uploader.toMultiPart()
+func (c *client) sendFile(uploader apiCaller) (*http.Response, error) {
+	writer, buffer, err := toMultiPart(uploader)
 	if err != nil {
 		return nil, err
 	}
@@ -19,8 +20,8 @@ func (c *client) sendFile(uploader fileUploader) (*http.Response, error) {
 	return c.httpClient.Do(post)
 }
 
-func (c *client) sendJSON(uploader jsonUploader) (*http.Response, error) {
-	jsonBytes, err := uploader.toJSON()
+func (c *client) sendJSON(uploader apiCaller) (*http.Response, error) {
+	jsonBytes, err := json.Marshal(uploader)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +32,7 @@ func (c *client) sendJSON(uploader jsonUploader) (*http.Response, error) {
 	return c.httpClient.Do(post)
 }
 
-func (c *client) sendFileMessage(uploader fileUploader) (Message, error) {
+func (c *client) sendFileMessage(uploader apiCaller) (Message, error) {
 	response, err := c.sendFile(uploader)
 	if err != nil {
 		return Message{}, err
@@ -43,7 +44,7 @@ func (c *client) sendFileMessage(uploader fileUploader) (Message, error) {
 	return responseToMessage(response)
 }
 
-func (c *client) sendJSONMessage(uploader jsonUploader) (Message, error) {
+func (c *client) sendJSONMessage(uploader apiCaller) (Message, error) {
 	response, err := c.sendJSON(uploader)
 	if err != nil {
 		return Message{}, err
