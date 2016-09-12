@@ -3,8 +3,6 @@ package TeleGogo
 import (
 	"encoding/json"
 	"net/http"
-
-	"github.com/wallnutkraken/TeleGogo/Requests"
 )
 
 func (c *client) sendFile(uploader apiCaller) (*http.Response, error) {
@@ -12,7 +10,7 @@ func (c *client) sendFile(uploader apiCaller) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	post, err := Requests.CreateBotPOST(c.token, uploader.methodName(), buffer)
+	post, err := createBotPOST(c.token, uploader.methodName(), buffer)
 	post.Header.Add("Content-Type", writer.FormDataContentType())
 	if err != nil {
 		return nil, err
@@ -25,7 +23,7 @@ func (c *client) sendJSON(uploader apiCaller) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	post, err := Requests.CreateBotPostJSON(c.token, uploader.methodName(), jsonBytes)
+	post, err := createBotPostJSON(c.token, uploader.methodName(), jsonBytes)
 	if err != nil {
 		return nil, err
 	}

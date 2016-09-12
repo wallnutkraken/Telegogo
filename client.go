@@ -5,8 +5,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-
-	"github.com/wallnutkraken/TeleGogo/Requests"
 )
 
 type client struct {
@@ -53,7 +51,7 @@ func (c *client) SetWebhook(args SetWebhookArgs) error {
 
 // DownloadFile downloads the specified file
 func (c *client) DownloadFile(file File, path string) error {
-	get, err := Requests.CreateFileGet(c.token, file.FilePath)
+	get, err := createFileGet(c.token, file.FilePath)
 	if err != nil {
 		return err
 	}
@@ -75,7 +73,7 @@ func (c *client) DownloadFile(file File, path string) error {
 // WhoAmI A simple method for testing your bot's auth token. Requires no parameters.
 // Returns basic information about the bot in form of a User object.
 func (c *client) WhoAmI() (User, error) {
-	request, err := Requests.CreateBotGet(c.token, "getMe")
+	request, err := createBotGet(c.token, "getMe")
 
 	if err != nil {
 		return User{}, err
