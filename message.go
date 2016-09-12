@@ -1,7 +1,5 @@
 package TeleGogo
 
-import "encoding/json"
-
 // Message represents a message.
 type Message struct {
 	// ID Unique message identifier
@@ -125,10 +123,6 @@ type SendMessageArgs struct {
 	ReplyMarkup string `json:"reply_markup,omitempty"`
 }
 
-func (a SendMessageArgs) toJSON() ([]byte, error) {
-	return json.Marshal(a)
-}
-
 func (a SendMessageArgs) methodName() string {
 	return "sendMessage"
 }
@@ -147,10 +141,29 @@ type ForwardMessageArgs struct {
 	MessageID int `json:"message_id"`
 }
 
-func (f ForwardMessageArgs) toJSON() ([]byte, error) {
-	return json.Marshal(f)
-}
-
 func (f ForwardMessageArgs) methodName() string {
 	return "forwardMessage"
+}
+
+// SendLocationArgs represents the optional and required arguments for the SendLocation message
+type SendLocationArgs struct {
+	// ChatID Required. Unique identifier for the target chat or username of the target channel
+	// (in the format @channelusername)
+	ChatID string `json:"chat_id"`
+	// Latitude Required. Latitude of location
+	Latitude float32 `json:"latitude"`
+	// Longitude. Required. Longitude of location
+	Longitude float32 `json:"longitude"`
+	// DisableNotification Optional. Sends the message silently. iOS users will not receive a notification,
+	// Android users will receive a notification with no sound.
+	DisableNotification bool `json:"disable_notification,omitempty"`
+	// ReplyToMessageID Optional. If the message is a reply, ID of the original message
+	ReplyToMessageID int `json:"reply_to_message_id,omitempty"`
+	// ReplyMarkup Optional. Additional interface options. A JSON-serialized object for an inline keyboard,
+	// custom reply keyboard, instructions to hide reply keyboard or to force a reply from the user.
+	ReplyMarkup string `json:"reply_markup,omitempty"`
+}
+
+func (a SendLocationArgs) methodName() string {
+	return "sendLocation"
 }
