@@ -7,7 +7,7 @@ import (
 )
 
 func TestSendAudio(t *testing.T) {
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	assert.NoError(t, err)
 
 	expectedTitle := "testerino"
@@ -20,7 +20,7 @@ func TestSendAudio(t *testing.T) {
 
 func TestResendAudio(t *testing.T) {
 	const audioID = "BQADBAADKAADjT7dDeoWcahVii-dAg"
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	assert.NoError(t, err)
 
 	msg, err := bot.SendAudio(SendAudioArgs{ChatID: testingID, AudioFileID: audioID})

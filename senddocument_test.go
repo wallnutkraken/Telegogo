@@ -8,7 +8,7 @@ import (
 
 func TestSendNewDocument(t *testing.T) {
 	ass := assert.New(t)
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	ass.NoError(err)
 
 	msg, err := bot.SendDocument(SendDocumentArgs{ChatID: testingID,
@@ -20,7 +20,7 @@ func TestSendNewDocument(t *testing.T) {
 func TestResendDocument(t *testing.T) {
 	const docID = "BQADBAADPAADjT7dDavEmb2gmPHeAg"
 	ass := assert.New(t)
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	ass.NoError(err)
 
 	msg, err := bot.SendDocument(SendDocumentArgs{ChatID: testingID, DocumentFileID: docID})

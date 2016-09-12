@@ -5,7 +5,7 @@ import (
 )
 
 func TestSendMessage_Basic(t *testing.T) {
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	if err != nil {
 		t.Error(err)
 		t.FailNow()
@@ -29,7 +29,7 @@ func TestSendMessage_Basic(t *testing.T) {
 }
 
 func TestSendMessage_Markdown(t *testing.T) {
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	if err != nil {
 		t.Error(err)
 		t.FailNow()
@@ -56,7 +56,7 @@ func TestSendMessage_Markdown(t *testing.T) {
 }
 
 func TestSendMessage_HTML(t *testing.T) {
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	if err != nil {
 		t.Error(err)
 		t.FailNow()

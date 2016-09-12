@@ -8,7 +8,7 @@ import (
 
 func TestSendSticker(t *testing.T) {
 	ass := assert.New(t)
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	ass.NoError(err)
 
 	msg, err := bot.SendSticker(SendStickerArgs{ChatID: testingID,
@@ -21,7 +21,7 @@ func TestSendSticker(t *testing.T) {
 func TestResendSticker(t *testing.T) {
 	const stickerID = "BQADBAADrQIAAq6dFQcC08UCtLq4AAEC"
 	ass := assert.New(t)
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	ass.NoError(err)
 
 	msg, err := bot.SendSticker(SendStickerArgs{ChatID: testingID, StickerID: stickerID})

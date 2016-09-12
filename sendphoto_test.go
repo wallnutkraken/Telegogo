@@ -7,7 +7,7 @@ import (
 )
 
 func TestSendPhoto(t *testing.T) {
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	assert.NoError(t, err)
 
 	expectedCaption := "Ho ho, ha ha!"
@@ -21,7 +21,7 @@ func TestSendPhoto(t *testing.T) {
 
 func TestResendPhoto(t *testing.T) {
 	const photoID = "AgADBAADv6cxG40-3Q19yuiXiGpU-8AmaRkABF-cEfxX8SFoWPIAAgI"
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	assert.NoError(t, err)
 
 	msg, err := bot.SendPhoto(SendPhotoArgs{ChatID: testingID, FileID: photoID})

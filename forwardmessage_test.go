@@ -8,7 +8,7 @@ import (
 )
 
 func TestForwardMessage(t *testing.T) {
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	assert.NoError(t, err)
 	sentMessage, err := bot.SendMessage(SendMessageArgs{ChatID: testingID, Text: "messageToForward"})
 	assert.NoError(t, err)

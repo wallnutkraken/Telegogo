@@ -9,7 +9,7 @@ import (
 func TestSendVoice(t *testing.T) {
 	ass := assert.New(t)
 
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	ass.NoError(err)
 
 	msg, err := bot.SendVoice(SendVoiceArgs{ChatID: testingID, VoicePath: "testfiles/testvoice.ogg",
@@ -22,7 +22,7 @@ func TestResendVoice(t *testing.T) {
 	const voiceID = "AwADBAADlwADjT7dDUiBdYAXI_x3Ag"
 
 	ass := assert.New(t)
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	ass.NoError(err)
 
 	msg, err := bot.SendVoice(SendVoiceArgs{ChatID: testingID, VoiceID: voiceID})

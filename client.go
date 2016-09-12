@@ -182,8 +182,8 @@ func responseToMessage(response *http.Response) (Message, error) {
 	return msg.Result, err
 }
 
-// NewClient Creates a new Client
-func NewClient(token string) (Client, error) {
+// NewBot Creates a new Client
+func NewBot(token string) (Client, error) {
 	c := new(client)
 	c.token = token
 	c.httpClient = &http.Client{}

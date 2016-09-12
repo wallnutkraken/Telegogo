@@ -8,7 +8,7 @@ import (
 
 func TestSendVideo(t *testing.T) {
 	ass := assert.New(t)
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	ass.NoError(err)
 
 	msg, err := bot.SendVideo(SendVideoArgs{ChatID: testingID, VideoPath: "testfiles/testvideo.mp4"})
@@ -19,7 +19,7 @@ func TestSendVideo(t *testing.T) {
 func TestResendVideo(t *testing.T) {
 	const videoID = "BAADBAADWQADjT7dDeoL8w4AAezcHwI"
 	ass := assert.New(t)
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	ass.NoError(err)
 
 	msg, err := bot.SendVideo(SendVideoArgs{ChatID: testingID, VideoID: videoID})

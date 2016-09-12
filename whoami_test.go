@@ -10,7 +10,7 @@ const (
 )
 
 func TestWhoAmI(t *testing.T) {
-	bot, err := NewClient(testBotToken)
+	bot, err := NewBot(testBotToken)
 	if err != nil {
 		t.Log(err)
 		t.FailNow()
