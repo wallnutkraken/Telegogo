@@ -164,6 +164,10 @@ type SendVoiceArgs struct {
 	ReplyMarkup string `json:"reply_markup,omitempty" tele:"reply_markup"`
 }
 
+func (a SendVoiceArgs) methodName() string {
+	return "sendVoice"
+}
+
 type apiCaller interface {
 	methodName() string
 }

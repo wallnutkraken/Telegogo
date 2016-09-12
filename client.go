@@ -162,6 +162,18 @@ func (c *client) SendVideo(args SendVideoArgs) (Message, error) {
 	return c.sendJSONMessage(args)
 }
 
+// SendVoice Use this method to send audio files, if you want Telegram clients to display the file as a
+// playable voice message. For this to work, your audio must be in an .ogg file encoded with OPUS
+// (other formats may be sent as Audio or Document). On success, the sent Message is returned. Bots can
+// currently send voice messages of up to 50 MB in size, this limit may be changed in the future.
+func (c *client) SendVoice(args SendVoiceArgs) (Message, error) {
+	/* Decide if the voice is an existing or a new voice, based on args */
+	if args.VoicePath != "" {
+		return c.sendFileMessage(args)
+	}
+	return c.sendJSONMessage(args)
+}
+
 func responseToMessage(response *http.Response) (Message, error) {
 	msg := messageReply{}
 	decoder := json.NewDecoder(response.Body)
@@ -191,4 +203,5 @@ type Client interface {
 	SendDocument(SendDocumentArgs) (Message, error)
 	SendSticker(SendStickerArgs) (Message, error)
 	SendVideo(SendVideoArgs) (Message, error)
+	SendVoice(SendVoiceArgs) (Message, error)
 }
