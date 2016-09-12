@@ -6,7 +6,7 @@ type SetWebhookArgs struct {
 	URL string `tele:"url"`
 	// Certificate Optional. The path for your public key certificate so that the root
 	// certificate in use can be checked.
-	CertificatePath string `tele:!certificate`
+	CertificatePath string `tele:"!certificate"`
 }
 
 func (a SetWebhookArgs) methodName() string {
