@@ -189,6 +189,20 @@ func (c *client) SendContact(args SendContactArgs) (Message, error) {
 	return c.sendJSONMessage(args)
 }
 
+// SendChatAction Use this method when you need to tell the user that something is happening
+// on the bot's side. The status is set for 5 seconds or less (when a message arrives from your bot,
+// Telegram clients clear its typing status).
+func (c *client) SendChatAction(args SendChatActionArgs) error {
+	response, err := c.sendJSON(args)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode != http.StatusOK {
+		return responseToError(response)
+	}
+	return nil
+}
+
 func responseToMessage(response *http.Response) (Message, error) {
 	msg := messageReply{}
 	decoder := json.NewDecoder(response.Body)
@@ -222,4 +236,5 @@ type Client interface {
 	SendLocation(SendLocationArgs) (Message, error)
 	SendVenue(SendVenueArgs) (Message, error)
 	SendContact(SendContactArgs) (Message, error)
+	SendChatAction(SendChatActionArgs) error
 }
