@@ -179,6 +179,10 @@ func (c *client) SendLocation(args SendLocationArgs) (Message, error) {
 	return c.sendJSONMessage(args)
 }
 
+func (c *client) SendVenue(args SendVenueArgs) (Message, error) {
+	return c.sendJSONMessage(args)
+}
+
 func responseToMessage(response *http.Response) (Message, error) {
 	msg := messageReply{}
 	decoder := json.NewDecoder(response.Body)
@@ -210,4 +214,5 @@ type Client interface {
 	SendVideo(SendVideoArgs) (Message, error)
 	SendVoice(SendVoiceArgs) (Message, error)
 	SendLocation(SendLocationArgs) (Message, error)
+	SendVenue(SendVenueArgs) (Message, error)
 }
