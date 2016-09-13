@@ -8,7 +8,7 @@ import (
 
 func TestSendVenue(t *testing.T) {
 	const latitude float32 = 35.852124
-	const longitude float32 = -95.317949
+	const longitude float32 = -95.317955
 	ass := assert.New(t)
 
 	bot, err := NewBot(testBotToken)
