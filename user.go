@@ -21,7 +21,7 @@ type UserProfilePhotos struct {
 	// Count Total number of profile pictures the target user has
 	Count int `json:"total_count"`
 	// Photos Requested profile pictures (in up to 4 sizes each)
-	Photos []PhotoSize `json:"photos"`
+	Photos [][]PhotoSize `json:"photos"`
 }
 
 type userResponse struct {
