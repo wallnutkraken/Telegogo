@@ -179,7 +179,13 @@ func (c *client) SendLocation(args SendLocationArgs) (Message, error) {
 	return c.sendJSONMessage(args)
 }
 
+// SendVenue Use this method to send information about a venue. On success, the sent Message is returned.
 func (c *client) SendVenue(args SendVenueArgs) (Message, error) {
+	return c.sendJSONMessage(args)
+}
+
+// SendContact Use this method to send phone contacts. On success, the sent Message is returned.
+func (c *client) SendContact(args SendContactArgs) (Message, error) {
 	return c.sendJSONMessage(args)
 }
 
@@ -215,4 +221,5 @@ type Client interface {
 	SendVoice(SendVoiceArgs) (Message, error)
 	SendLocation(SendLocationArgs) (Message, error)
 	SendVenue(SendVenueArgs) (Message, error)
+	SendContact(SendContactArgs) (Message, error)
 }
