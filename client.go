@@ -50,8 +50,21 @@ func (c *client) SetWebhook(args SetWebhookArgs) error {
 }
 
 // DownloadFile downloads the specified file
-func (c *client) DownloadFile(file File, path string) error {
-	get, err := createFileGet(c.token, file.FilePath)
+func (c *client) DownloadFile(fileID, path string) error {
+	/* Get a File object by ID */
+	args := getFileArgs{FileID: fileID}
+	response, err := c.sendJSON(args)
+	if err != nil {
+		return responseToError(response)
+	}
+	fileResp := fileResponse{}
+	fileDecoder := json.NewDecoder(response.Body)
+	defer response.Body.Close()
+	if err = fileDecoder.Decode(&fileResp); err != nil {
+		return err
+	}
+
+	get, err := createFileGet(c.token, fileResp.Result.FilePath)
 	if err != nil {
 		return err
 	}
@@ -236,7 +249,7 @@ func NewBot(token string) (Client, error) {
 
 // Client represents a bot in Telegram.
 type Client interface {
-	DownloadFile(File, string) error
+	DownloadFile(fileID string, pathToSaveTo string) error
 	WhoAmI() (User, error)
 	GetUpdates(GetUpdatesOptions) ([]Update, error)
 	SendMessage(SendMessageArgs) (Message, error)
