@@ -203,6 +203,21 @@ func (c *client) SendChatAction(args SendChatActionArgs) error {
 	return nil
 }
 
+// GetUserProfilePhotos Use this method to get a list of profile pictures for a user.
+func (c *client) GetUserProfilePhotos(args GetUserProfilePhotosArgs) (UserProfilePhotos, error) {
+	response, err := c.sendJSON(args)
+	if err != nil {
+		return UserProfilePhotos{}, err
+	}
+	if response.StatusCode != http.StatusOK {
+		return UserProfilePhotos{}, responseToError(response)
+	}
+	photos := responseProfilePhotos{}
+	decoder := json.NewDecoder(response.Body)
+	err = decoder.Decode(&photos)
+	return photos.Result, err
+}
+
 func responseToMessage(response *http.Response) (Message, error) {
 	msg := messageReply{}
 	decoder := json.NewDecoder(response.Body)
@@ -237,4 +252,5 @@ type Client interface {
 	SendVenue(SendVenueArgs) (Message, error)
 	SendContact(SendContactArgs) (Message, error)
 	SendChatAction(SendChatActionArgs) error
+	GetUserProfilePhotos(GetUserProfilePhotosArgs) (UserProfilePhotos, error)
 }
