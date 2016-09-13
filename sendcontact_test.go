@@ -7,7 +7,7 @@ import (
 )
 
 func TestSendContact(t *testing.T) {
-	const phoneNumber = "+1-202-555-0143"
+	const phoneNumber = "+12025550143"
 	ass := assert.New(t)
 
 	bot, err := NewBot(testBotToken)
