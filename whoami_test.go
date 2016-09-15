@@ -7,6 +7,8 @@ import (
 const (
 	testBotToken = "232603277:AAFkfNN5LrwHvIiX39K2n3sZbmSW3-AkrA0"
 	testingID    = "118857134"
+	guyToKick    = 224584816
+	groupID      = "-178279414"
 )
 
 func TestWhoAmI(t *testing.T) {
