@@ -30,25 +30,25 @@ func (c *client) sendJSON(uploader apiCaller) (*http.Response, error) {
 	return c.httpClient.Do(post)
 }
 
-func (c *client) sendFileMessage(uploader apiCaller) (Message, error) {
+func (c *client) sendFileMessage(uploader apiCaller) (Message, TelegramError) {
 	response, err := c.sendFile(uploader)
 	if err != nil {
-		return Message{}, err
+		return Message{}, errToTelegramErr(err)
 	}
 	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
+		return Message{}, responseToTgError(response)
 	}
 
 	return responseToMessage(response)
 }
 
-func (c *client) sendJSONMessage(uploader apiCaller) (Message, error) {
+func (c *client) sendJSONMessage(uploader apiCaller) (Message, TelegramError) {
 	response, err := c.sendJSON(uploader)
 	if err != nil {
-		return Message{}, err
+		return Message{}, errToTelegramErr(err)
 	}
 	if response.StatusCode != http.StatusOK {
-		return Message{}, responseToError(response)
+		return Message{}, responseToTgError(response)
 	}
 
 	return responseToMessage(response)
