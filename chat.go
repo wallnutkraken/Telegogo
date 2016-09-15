@@ -36,3 +36,12 @@ type KickChatMemberArgs struct {
 func (a KickChatMemberArgs) methodName() string {
 	return "kickChatMember"
 }
+
+// leaveChatArgs an unexported type to be used for JSON.
+type leaveChatArgs struct {
+	ChatID int `json:"chat_id"`
+}
+
+func (a leaveChatArgs) methodName() string {
+	return "leaveChat"
+}

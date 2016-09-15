@@ -239,8 +239,23 @@ func (c *client) GetUserProfilePhotos(args GetUserProfilePhotosArgs) (UserProfil
 	return photos.Result, nil
 }
 
+// KickChatMember Use this method to kick a user from a group or a supergroup.
+// In the case of supergroups, the user will not be able to return to the group on their own using invite
+// links, etc., unless unbanned first. The bot must be an administrator in the group for this to work.
 func (c *client) KickChatMember(args KickChatMemberArgs) TelegramError {
 	response, err := c.sendJSON(args)
+	if err != nil {
+		return errToTelegramErr(err)
+	}
+	if response.StatusCode != http.StatusOK {
+		return responseToTgError(response)
+	}
+	return nil
+}
+
+// LeaveChat Use this method for your bot to leave a group, supergroup or channel.
+func (c *client) LeaveChat(chatToLeave Chat) TelegramError {
+	response, err := c.sendJSON(leaveChatArgs{ChatID: chatToLeave.ID})
 	if err != nil {
 		return errToTelegramErr(err)
 	}
