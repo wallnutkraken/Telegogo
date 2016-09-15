@@ -23,3 +23,16 @@ type ChatMember struct {
 	// Status is the member's status in the chat. Can be “creator”, “administrator”, “member”, “left” or “kicked”
 	Status string `json:"status"`
 }
+
+// KickChatMemberArgs represents the optional and required arguments for KickChatMember
+type KickChatMemberArgs struct {
+	// ChatID Required. Unique identifier for the target group or username of the target supergroup
+	// (in the format @supergroupusername)
+	ChatID string `json:"chat_id"`
+	// UserID Required. Unique identifier of the target user
+	UserID int `json:"user_id"`
+}
+
+func (a KickChatMemberArgs) methodName() string {
+	return "kickChatMember"
+}

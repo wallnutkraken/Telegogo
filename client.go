@@ -231,6 +231,17 @@ func (c *client) GetUserProfilePhotos(args GetUserProfilePhotosArgs) (UserProfil
 	return photos.Result, err
 }
 
+func (c *client) KickChatMember(args KickChatMemberArgs) error {
+	response, err := c.sendJSON(args)
+	if err != nil {
+		return err
+	}
+	body := make([]byte, 1024)
+	count, err := response.Body.Read(body)
+	println(string(body[:count]))
+	return err
+}
+
 func responseToMessage(response *http.Response) (Message, error) {
 	msg := messageReply{}
 	decoder := json.NewDecoder(response.Body)
@@ -266,4 +277,5 @@ type Client interface {
 	SendContact(SendContactArgs) (Message, error)
 	SendChatAction(SendChatActionArgs) error
 	GetUserProfilePhotos(GetUserProfilePhotosArgs) (UserProfilePhotos, error)
+	KickChatMember(KickChatMemberArgs) error
 }
