@@ -31,7 +31,7 @@ func (t telegramError) IsOK() bool {
 }
 
 func (t telegramError) ErrCode() int {
-	return t.ErrCode()
+	return t.ErrorCode
 }
 
 func (t telegramError) Error() string {
