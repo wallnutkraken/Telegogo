@@ -27,7 +27,7 @@ type updateResponse struct {
 type GetUpdatesOptions struct {
 	// Offset Optional. Identifier of the first update to be returned.
 	// Must be greater by one than the highest among the identifiers of previously received updates.
-	Offset int `json:"offset"`
+	Offset int64 `json:"offset"`
 	// Limit Optional. Limits the number of updates to be retrieved. Values between 1—100 are accepted.
 	Limit int `json:"limit,omitempty"`
 	// Timeout Optional. Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling.
