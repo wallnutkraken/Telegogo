@@ -5,7 +5,7 @@ import "encoding/json"
 // Update represents a state update in Telegram that has relevance to a bot client.
 type Update struct {
 	// ID The update‘s unique identifier
-	ID int `json:"update_id"`
+	ID int64 `json:"update_id"`
 	// Message Optional. New incoming message of any kind — text, photo, sticker, etc.
 	Message Message `json:"message"`
 	// EditedMessage Optional. New version of a message that is known to the bot and was edited
