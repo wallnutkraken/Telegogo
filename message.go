@@ -3,7 +3,7 @@ package TeleGogo
 // Message represents a message.
 type Message struct {
 	// ID Unique message identifier
-	ID int `json:"message_id"`
+	ID int64 `json:"message_id"`
 	// From Optional. Sender, can be empty for messages sent to channels
 	From User `json:"from"`
 	// Date Date the message was sent in Unix time
